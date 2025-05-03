@@ -8,7 +8,6 @@ import {
   MessageInput,
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
-import { NavbarComponent } from "../components/Navbar";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
@@ -263,7 +262,7 @@ export function ChatBot() {
 
   return (
     <>
-      <NavbarComponent />
+
       <div
         style={{
           position: "relative",

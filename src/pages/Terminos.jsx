@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { NavbarComponent } from "../components/Navbar";
+
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 
@@ -7,7 +7,7 @@ import Row from "react-bootstrap/Row";
 export function TerminosPage() {
   return (
     <div className="App">
-      <NavbarComponent />
+
       <Container fluid>
         <Row>
           <h1 style={{ textAlign: "center", marginTop: "0.2em" }}>

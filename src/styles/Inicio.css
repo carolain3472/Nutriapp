@@ -1,0 +1,100 @@
+/* Habilita el desplazamiento suave en toda la página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ajusta el margen superior de las secciones para evitar que queden ocultas detrás del navbar */
+.section {
+  min-height: 100vh; /* Ocupa al menos el 100% de la altura del viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centra verticalmente el contenido */
+  padding: 2rem 1rem; /* Espaciado interno */
+  scroll-margin-top: 70px; /* Ajusta según la altura de tu navbar */
+}
+
+#que-es {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 3rem 1rem;
+}
+
+#que-es h2 {
+  font-size: 2.5rem;
+  color: #343a40;
+}
+
+#que-es p {
+  font-size: 1.125rem;
+  color: #6c757d;
+}
+
+#que-es ul {
+  font-size: 1.125rem;
+  color: #495057;
+}
+
+#que-es .btn-success {
+  background-color: #04a30f;
+  border-color: #04a30f;
+}
+
+#que-es .btn-success:hover {
+  background-color: #038c0a;
+  border-color: #038c0a;
+}
+
+#planes {
+  background-color: #f8f9fa;
+  padding: 3rem 0;
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.plan-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #343a40;
+  margin-bottom: 1rem;
+}
+
+.plan-features {
+  list-style-type: none;
+  padding-left: 0;
+  color: #6c757d;
+}
+
+.plan-features li {
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+}
+
+.plan-features li:before {
+  content: "✔️";
+  margin-right: 10px;
+  color: #28a745;
+}
+
+@media (max-width: 767px) {
+  .plan-card {
+    margin-bottom: 2rem;
+  }
+}
