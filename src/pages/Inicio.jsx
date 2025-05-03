@@ -3,12 +3,19 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-
+import { useNavigate } from "react-router-dom";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import "../styles/Inicio.css";
 
 export function InicioPage() {
+  const navigate = useNavigate();
+
+  const handleCheckout = (plan) => {
+    // Simple navegación a la página de checkout en modo visual
+    navigate("/checkout", { state: { plan } });
+  };
+
   return (
     <>
       <Navbar className="bg-body-secondary fixed-top" expand="lg">
@@ -131,7 +138,9 @@ export function InicioPage() {
 
             <Row className="mt-5 justify-content-center">
               <Col md={8}>
-                <h3 className="fw-bold text-center">Características Destacadas ✨</h3>
+                <h3 className="fw-bold text-center">
+                  Características Destacadas ✨
+                </h3>
                 <ul className="list-unstyled mt-3 text-center">
                   <li>
                     <strong>Automatización de Planes Nutricionales:</strong>{" "}
@@ -163,53 +172,68 @@ export function InicioPage() {
             </h2>
 
             <Row className="justify-content-center">
+              {/* Plan Básico */}
               <Col md={4}>
                 <div className="plan-card">
                   <h3 className="plan-title">🍃 Plan Básico (Gratis)</h3>
                   <ul className="plan-features">
                     <li>✅ Plan alimenticio semanal simple</li>
-                    <li>
-                      ⚠️ Restricciones básicas (1-2 alergias/intolerancias)
-                    </li>
-                    <li>🍽️ Hasta 3 recetas semanales sugeridas</li>
+                    <li>⚠️ Restricciones básicas</li>
+                    <li>🍽️ Hasta 3 recetas semanales</li>
                     <li>⏰ Recordatorios básicos</li>
-                    <li>📚 Acceso a tips y artículos generales de nutrición</li>
+                    <li>📚 Tips y artículos generales</li>
                   </ul>
+                  <Button
+                    variant="outline-success"
+                    className="w-100 mt-3"
+                    onClick={() => handleCheckout("Básico")}
+                  >
+                    Seleccionar Plan Básico
+                  </Button>
                 </div>
               </Col>
 
+              {/* Plan Estándar */}
               <Col md={4}>
                 <div className="plan-card">
-                  <h3 className="plan-title">🥦 Plan Estándar (13.000 COP)</h3>
+                  <h3 className="plan-title">🥦 Plan Estándar (13.000 COP)</h3>
                   <ul className="plan-features">
-                    <li>🎯 Plan alimenticio personalizado con objetivos</li>
-                    <li>🔄 Adaptación dinámica de menús según avances</li>
-                    <li>🍳 Generación ilimitada de recetas</li>
+                    <li>🎯 Plan personalizado con objetivos</li>
+                    <li>🔄 Menús dinámicos</li>
+                    <li>🍳 Recetas ilimitadas</li>
                     <li>🛒 Listas de compras completas</li>
-                    <li>📈 Registro de progreso (peso, hábitos, adherencia)</li>
+                    <li>📈 Registro de progreso</li>
                     <li>🤖 Recordatorios inteligentes</li>
                   </ul>
+                  <Button
+                    variant="outline-success"
+                    className="w-100 mt-3"
+                    onClick={() => handleCheckout("Estándar")}
+                  >
+                    Seleccionar Plan Estándar
+                  </Button>
                 </div>
               </Col>
 
+              {/* Plan Premium */}
               <Col md={4}>
                 <div className="plan-card">
-                  <h3 className="plan-title">🌟 Plan Premium (20.000 COP)</h3>
+                  <h3 className="plan-title">🌟 Plan Premium (20.000 COP)</h3>
                   <ul className="plan-features">
-                    <li>✅ Todo lo del plan estándar</li>
-                    <li>👨‍👩‍👧‍👦 Multiusuario: hasta 3 perfiles por hogar</li>
-                    <li>🥗 Gestión avanzada de restricciones alimenticias</li>
-                    <li>🧠 Análisis de hábitos alimenticios con IA</li>
-                    <li>📊 Reportes visuales y recomendaciones de mejora</li>
-                    <li>
-                      🥘 Sugerencias de platos según disponibilidad en la
-                      despensa
-                    </li>
-                    <li>📱 Integración con apps de salud o dispositivos</li>
-                    <li>
-                      💬 Asistencia personalizada (chatbot o IA contextual)
-                    </li>
+                    <li>✅ Todo lo del estándar</li>
+                    <li>👨‍👩‍👧‍👦 Multiusuario</li>
+                    <li>🥗 Gestión avanzada de alergias</li>
+                    <li>🧠 Análisis con IA</li>
+                    <li>📊 Reportes visuales</li>
+                    <li>💬 Asistencia personalizada</li>
                   </ul>
+                  <Button
+                    variant="outline-success"
+                    className="w-100 mt-3"
+                    onClick={() => handleCheckout("Premium")}
+                  >
+                    Seleccionar Plan Premium
+                  </Button>
                 </div>
               </Col>
             </Row>
