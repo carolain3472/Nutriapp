@@ -1,8 +1,7 @@
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import {InicioPage} from './pages/Inicio'
 import {ChatBot} from './components/ChatBot'
-import {TerminosPage} from './pages/Terminos'
-import {InteresPage} from './pages/Interes'
+import { PaymentGateway } from "./pages/PasarelaPago";
 
 
 
@@ -21,8 +20,7 @@ function App() {
     <Routes>
       <Route path='/' element ={<InicioPage/>} />
       <Route path='/chat' element ={<ChatBot/>} />
-      <Route path='/terminos' element ={<TerminosPage/>} />
-      <Route path='/interes' element ={<InteresPage/>} />
+      <Route path="/checkout" element={<PaymentGateway />} />
     
     </Routes>
 
