@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { NavbarComponent } from "../components/Navbar";
+
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
@@ -7,7 +7,7 @@ import Row from 'react-bootstrap/Row';
 export function InteresPage() {
     return (
         <div className="App">
-            <NavbarComponent />
+
             <Container fluid style={{marginTop:"1em"}}>
                 <Row >
                     <div style={{ display: "flex", alignItems: "start" }}>

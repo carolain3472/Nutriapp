@@ -1,54 +1,221 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { NavbarComponent } from "../components/Navbar";
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
 
-
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
+import "../styles/Inicio.css";
 
 export function InicioPage() {
   return (
-    <div className="App">
-      <NavbarComponent />
-      <Container fluid>
-        <Row style={{ backgroundColor: "lightgray" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ order: 1, padding: "2em", display: "flex", alignItems: "center", flexDirection: "column" }}>
-              <h2 style={{ textAlign: "justify" }}>Descubre un enfoque innovador hacia la salud y el bienestar con NutriSalud. No se trata solo de comer, se trata de nutrir tu cuerpo y vivir una vida plena. Aquí, te ofrecemos las herramientas y el apoyo que necesitas para alcanzar tus objetivos de salud de manera personalizada y sostenible.</h2>
-              <Link to="/chat">
-                <Button style={{ width: "20rem", marginTop: "1em" }} variant="outline-primary" size="lg">
-                  Crea tu plan ahora
-                </Button>
-              </Link>
-            </div>
-            <div style={{ order: 2, marginLeft: "1em", padding: "1em" }}>
-              <img
-                src="/nutricionista.png"
-                alt=""
-                style={{ height: "512px", width: "512px" }}
-              />
-            </div>
-          </div>
-        </Row>
-        <Row>
-          <Col>
-          <div style={{fontFamily: 'Oswald, sans-serif', order: 1, padding: "2em", display: "flex", alignItems: "center", flexDirection: "column", color:"blue"}}>
-              <h2 style={{ textAlign: "justify", fontSize:"4.5rem" }}>SOMOS</h2>
-              <h4 style={{ textAlign: "justify", fontSize:"2rem" }}>AQUELLO QUE</h4>
-              <h1 style={{ textAlign: "justify", fontSize:"8rem" }}>COMEMOS</h1>
-            </div>
-          </Col>
-          <Col style={{ display: "flex", alignItems: "center", flexDirection: "column" }}>
-          <img
-                src="/comidasana.png"
-                alt=""
-                style={{ height: "512px", width: "512px" }}
-              />
-          </Col>
-        </Row>
-      </Container>
-    </div>
+    <>
+      <Navbar className="bg-body-secondary fixed-top" expand="lg">
+        <Container>
+          <Navbar.Brand href="#inicio">
+            <img
+              alt="Logo de NutriApp"
+              src="/logoApp.png"
+              width="30"
+              height="30"
+              className="d-inline-block align-top"
+            />
+            <b>NutriApp</b>
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <Nav.Link href="#inicio">Inicio</Nav.Link>
+              <Nav.Link href="#que-es">¿Qué es?</Nav.Link>
+              <Nav.Link href="#planes">Planes</Nav.Link>
+              <Nav.Link href="/login">Iniciar sesión</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      <main>
+        <section id="inicio" className="section">
+          <Container>
+            <Row className="align-items-center justify-content-center">
+              {/* Columna de texto */}
+              <Col md={6}>
+                <h1 className="display-4 fw-bold">
+                  Nutrición Inteligente con IA
+                </h1>
+                <p className="lead mt-3">
+                  Descubre cómo la inteligencia artificial puede ayudarte a
+                  alcanzar tus objetivos de salud y bienestar con planes
+                  nutricionales personalizados. Transforma tu alimentación con
+                  planes creados por inteligencia artificial, pensados 100% para
+                  ti.
+                </p>
+                <p className="mt-4 text-muted">
+                  Sin consultas. Sin complicaciones. Solo resultados.
+                </p>
+                <Row className="mt-5">
+                  <Col className="text-center">
+                    <Button
+                      href="#planes"
+                      variant="success"
+                      size="lg"
+                      className="rounded-pill"
+                    >
+                      Comienza Aquí 🚀
+                    </Button>
+                  </Col>
+                </Row>
+              </Col>
+
+              {/* Columna de imagen */}
+              <Col md={6} className="text-center">
+                <img
+                  src="/nutricionInicio.jpeg"
+                  alt="Nutrición Inteligente"
+                  className="img-fluid rounded"
+                />
+              </Col>
+            </Row>
+          </Container>
+        </section>
+
+        <section id="que-es" className="py-5 bg-light">
+          <Container>
+            <Row className="align-items-center justify-content-center">
+              <Col md={12}>
+                <h2 className="display-4 fw-bold text-center">
+                  ¿Qué es NutriApp? 🧠
+                </h2>
+                <p className="lead mt-3 text-center">
+                  NutriApp es tu asistente de nutrición inteligente, diseñado
+                  para transformar tu alimentación diaria con la ayuda de la
+                  inteligencia artificial.
+                </p>
+                <p className="mt-4 text-center">
+                  Ya sea que busques optimizar tu salud, mejorar tu rendimiento
+                  físico o gestionar las necesidades alimenticias de tu familia,
+                  NutriApp se adapta a ti.
+                </p>
+              </Col>
+            </Row>
+
+            <Row className="mt-5 justify-content-center">
+              <Col md={4} className="text-center">
+                <h3 className="fw-bold">Profesionales Ocupados ⏰</h3>
+                <p>
+                  Para quienes el tiempo es limitado y la eficiencia es clave.
+                  NutriApp ofrece soluciones automatizadas que se ajustan a tu
+                  ritmo de vida.
+                </p>
+              </Col>
+              <Col md={4} className="text-center">
+                <h3 className="fw-bold">Entusiastas del Fitness 💪</h3>
+                <p>
+                  Aquellos que buscan maximizar su rendimiento con planes
+                  alimenticios precisos. NutriApp proporciona seguimiento
+                  detallado y ajustes personalizados.
+                </p>
+              </Col>
+              <Col md={4} className="text-center">
+                <h3 className="fw-bold">
+                  Familias con Restricciones Alimenticias 👨‍👩‍👧‍👦
+                </h3>
+                <p>
+                  Hogares que requieren menús personalizados y equilibrados para
+                  todos sus miembros. NutriApp organiza y adapta la alimentación
+                  familiar de manera eficiente.
+                </p>
+              </Col>
+            </Row>
+
+            <Row className="mt-5 justify-content-center">
+              <Col md={8}>
+                <h3 className="fw-bold text-center">Características Destacadas ✨</h3>
+                <ul className="list-unstyled mt-3 text-center">
+                  <li>
+                    <strong>Automatización de Planes Nutricionales:</strong>{" "}
+                    Generación automática de menús adaptados a tus objetivos y
+                    restricciones.
+                  </li>
+                  <li>
+                    <strong>Recordatorios Personalizados:</strong> Alertas para
+                    ayudarte a mantener tus hábitos alimenticios sin esfuerzo.
+                  </li>
+                  <li>
+                    <strong>Listas de Compras Integradas:</strong>{" "}
+                    Sincronización directa con tus menús para facilitar tus
+                    compras.
+                  </li>
+                  <li>
+                    <strong>Seguimiento de Progreso:</strong> Monitoreo
+                    detallado de tu evolución para ajustes precisos.
+                  </li>
+                </ul>
+              </Col>
+            </Row>
+          </Container>
+        </section>
+        <section id="planes" className="py-5">
+          <Container>
+            <h2 className="display-4 text-center mb-5">
+              Nuestros Planes Nutricionales
+            </h2>
+
+            <Row className="justify-content-center">
+              <Col md={4}>
+                <div className="plan-card">
+                  <h3 className="plan-title">🍃 Plan Básico (Gratis)</h3>
+                  <ul className="plan-features">
+                    <li>✅ Plan alimenticio semanal simple</li>
+                    <li>
+                      ⚠️ Restricciones básicas (1-2 alergias/intolerancias)
+                    </li>
+                    <li>🍽️ Hasta 3 recetas semanales sugeridas</li>
+                    <li>⏰ Recordatorios básicos</li>
+                    <li>📚 Acceso a tips y artículos generales de nutrición</li>
+                  </ul>
+                </div>
+              </Col>
+
+              <Col md={4}>
+                <div className="plan-card">
+                  <h3 className="plan-title">🥦 Plan Estándar (13.000 COP)</h3>
+                  <ul className="plan-features">
+                    <li>🎯 Plan alimenticio personalizado con objetivos</li>
+                    <li>🔄 Adaptación dinámica de menús según avances</li>
+                    <li>🍳 Generación ilimitada de recetas</li>
+                    <li>🛒 Listas de compras completas</li>
+                    <li>📈 Registro de progreso (peso, hábitos, adherencia)</li>
+                    <li>🤖 Recordatorios inteligentes</li>
+                  </ul>
+                </div>
+              </Col>
+
+              <Col md={4}>
+                <div className="plan-card">
+                  <h3 className="plan-title">🌟 Plan Premium (20.000 COP)</h3>
+                  <ul className="plan-features">
+                    <li>✅ Todo lo del plan estándar</li>
+                    <li>👨‍👩‍👧‍👦 Multiusuario: hasta 3 perfiles por hogar</li>
+                    <li>🥗 Gestión avanzada de restricciones alimenticias</li>
+                    <li>🧠 Análisis de hábitos alimenticios con IA</li>
+                    <li>📊 Reportes visuales y recomendaciones de mejora</li>
+                    <li>
+                      🥘 Sugerencias de platos según disponibilidad en la
+                      despensa
+                    </li>
+                    <li>📱 Integración con apps de salud o dispositivos</li>
+                    <li>
+                      💬 Asistencia personalizada (chatbot o IA contextual)
+                    </li>
+                  </ul>
+                </div>
+              </Col>
+            </Row>
+          </Container>
+        </section>
+      </main>
+    </>
   );
 }
