@@ -2,6 +2,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import {InicioPage} from './pages/Inicio'
 import {ChatBot} from './components/ChatBot'
 import { PaymentGateway } from "./pages/PasarelaPago";
+import { Login } from './pages/Login'
 
 
 
@@ -21,6 +22,8 @@ function App() {
       <Route path='/' element ={<InicioPage/>} />
       <Route path='/chat' element ={<ChatBot/>} />
       <Route path="/checkout" element={<PaymentGateway />} />
+      <Route path='/login' element ={<Login/>} />
+      {/* <Route path='/login' element ={<Login_template/>} /> */}
     
     </Routes>
 
