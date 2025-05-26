@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import { HashLink } from "react-router-hash-link";
+import { useNavigate } from "react-router-dom";
 
 export function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Aquí podrías agregar validaciones básicas de frontend
+    if (!email || !password) {
+      setError("Por favor, completa todos los campos.");
+      return;
+    }
+    setError("");
+
+    // Simular almacenamiento de variables (por ejemplo, en localStorage)
+    localStorage.setItem("userEmail", email);
+    localStorage.setItem("userPassword", password);
+
+    // Redireccionar a /perfil (la validación backend aún no está implementada)
+    navigate("/perfil");
+  };
+
   return (
     <Container
       fluid
@@ -50,7 +72,13 @@ export function Login() {
                 Iniciar sesión
               </Card.Subtitle>
 
-              <Form>
+              <Form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    {error}
+                  </div>
+                )}
+
                 <Form.Group className="mb-4" controlId="email">
                   <Form.Label className="fw-semibold">
                     Correo electrónico
@@ -61,6 +89,8 @@ export function Login() {
                     size="lg"
                     style={{ borderRadius: "12px" }}
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </Form.Group>
 
@@ -72,6 +102,8 @@ export function Login() {
                     size="lg"
                     style={{ borderRadius: "12px" }}
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </Form.Group>
 
@@ -92,13 +124,12 @@ export function Login() {
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
-                <HashLink
-                  smooth
-                  to="/#planes"
+                <a
+                  href="/#planes"
                   className="text-decoration-none text-secondary"
                 >
                   Adquiere un plan
-                </HashLink>
+                </a>
               </div>
             </Card.Body>
           </Card>
