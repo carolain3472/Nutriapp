@@ -3,20 +3,53 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const {
+    nombre,
+    apellidos,
+    fecha_nacimiento,
+    altura,
+    peso,
+    genero,
+    email,
+    password
+  } = req.body;
+
   try {
+    // Verificar si el usuario ya existe
     const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: 'Email ya registrado' });
+    if (userExists) {
+      return res.status(400).json({ message: 'Email ya registrado' });
+    }
 
+    // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword });
-    await user.save();
 
+    // Crear nuevo usuario
+    const nuevoUsuario = new User({
+      nombre,
+      apellidos,
+      fecha_nacimiento: fecha_nacimiento ? new Date(fecha_nacimiento) : undefined,
+      altura: altura ? Number(altura) : undefined,
+      peso: peso ? Number(peso) : undefined,
+      genero,
+      email,
+      password: hashedPassword,
+      foto_perfil: req.file
+        ? {
+            data: req.file.buffer,
+            contentType: req.file.mimetype
+          }
+        : undefined
+    });
+
+    await nuevoUsuario.save();
     res.status(201).json({ message: 'Usuario creado' });
   } catch (error) {
+    console.error('Error en el registro:', error);
     res.status(500).json({ message: 'Error del servidor' });
   }
 };
+
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -25,6 +58,7 @@ exports.login = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
     const valid = await bcrypt.compare(password, user.password);
+    
     if (!valid) return res.status(401).json({ message: 'Contraseña incorrecta' });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
