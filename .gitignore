@@ -24,3 +24,6 @@ yarn-error.log*
 
 /backend/node_modules
 .qodo
+
+/backendApp/node_modules
+.openai

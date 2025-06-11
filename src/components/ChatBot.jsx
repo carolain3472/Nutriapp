@@ -10,17 +10,16 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Alert from "react-bootstrap/Alert";
 
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-
-
-const API_KEY = "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";
-
 export function ChatBot() {
   const [userEmail, setUserEmail] = useState('');
   const [show, setShow] = useState(false);
+  const [error, setError] = useState(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -50,11 +49,12 @@ export function ChatBot() {
       const data = await response.json();
 
       if (data.success) {
-        console.log('Correo electrónico enviado con éxito');
+        setError({ type: 'success', message: 'Correo electrónico enviado con éxito' });
       } else {
-        console.error('Error al enviar el correo electrónico');
+        setError({ type: 'danger', message: 'Error al enviar el correo electrónico' });
       }
     } catch (error) {
+      setError({ type: 'danger', message: 'Error al enviar el correo electrónico' });
       console.error('Error al enviar el correo electrónico', error);
     }
   };
@@ -80,51 +80,58 @@ export function ChatBot() {
   const chatRef = useRef(); // Agrega esta línea para referenciar el contenedor del chat
 
   const generatePDF = async () => {
-    // Referencia al contenedor del chat
-    const originalHeight = chatRef.current.style.height;
-    const originalOverflow = chatRef.current.style.overflow;
+    if (!chatRef.current) {
+      setError({ type: 'danger', message: 'Error al generar el PDF: No se encontró el contenido del chat' });
+      return;
+    }
 
-    // Ajustar estilos para captura
-    chatRef.current.style.height = "auto";
-    chatRef.current.style.overflow = "visible";
+    setIsGeneratingPDF(true);
+    setError(null);
 
-    await html2canvas(chatRef.current, { scrollY: -window.scrollY }).then(
-      (canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF();
+    try {
+      const originalHeight = chatRef.current.style.height;
+      const originalOverflow = chatRef.current.style.overflow;
 
-        // Asegúrate de que la imagen se ajuste al ancho de la página
-        const imgWidth = 190; // Ancho de la imagen en mm
-        const pageHeight = 290; // Alto de la página en mm
-        let imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
+      chatRef.current.style.height = "auto";
+      chatRef.current.style.overflow = "visible";
 
-        let position = 0;
+      const canvas = await html2canvas(chatRef.current, { scrollY: -window.scrollY });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
 
+      const imgWidth = 190;
+      const pageHeight = 290;
+      let imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
         pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
-
-        // Bucle para agregar nuevas páginas si es necesario
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-
-        pdf.save("chat.pdf");
-        if (userEmail) {
-          sendEmail(userEmail, messages);
-        } else {
-          console.error('No se capturó correctamente el correo electrónico del usuario.');
-        }
       }
 
-    );
-
-    // Restaurar estilos
-    chatRef.current.style.height = originalHeight;
-    chatRef.current.style.overflow = originalOverflow;
+      pdf.save("chat.pdf");
+      
+      if (userEmail) {
+        await sendEmail(userEmail, messages);
+      } else {
+        setError({ type: 'warning', message: 'No se encontró un correo electrónico para enviar el PDF' });
+      }
+    } catch (error) {
+      setError({ type: 'danger', message: 'Error al generar el PDF' });
+      console.error('Error al generar PDF:', error);
+    } finally {
+      if (chatRef.current) {
+        chatRef.current.style.height = originalHeight;
+        chatRef.current.style.overflow = originalOverflow;
+      }
+      setIsGeneratingPDF(false);
+    }
   };
 
   useEffect(() => {
@@ -133,151 +140,104 @@ export function ChatBot() {
   }, []);
 
   const handleSend = async (message) => {
+    if (!message.trim()) {
+      setError({ type: 'warning', message: 'Por favor, escribe un mensaje' });
+      return;
+    }
+
+    setError(null);
     const newMessage = {
       message: message,
       sender: "user",
       direction: "outgoing",
     };
 
-    const newMessages = [...messages, newMessage]; //Old messages + new messages
-
-    //Update messahes state
+    const newMessages = [...messages, newMessage];
     setMessages(newMessages);
-
-    //Set a typing indicator from ChatGPT
     setTyping(true);
-    //Process message to chatGPT
-    await processMessageToChatGPT(newMessages);
 
-    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+    try {
+      await processMessageToChatGPT(newMessages);
 
-    // Encuentra todas las direcciones de correo electrónico en el mensaje
-    const matches = message.match(emailRegex);
+      const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+      const matches = message.match(emailRegex);
 
-    if (matches && matches.length > 0) {
-      const extractedEmail = matches[0];
-      setUserEmail(extractedEmail);
-      console.log(extractedEmail);
-    } else {
-      // Manejar el caso en que no se encuentre una dirección de correo electrónico
-      console.error('No se pudo encontrar una dirección de correo electrónico en la respuesta del usuario.');
+      if (matches && matches.length > 0) {
+        setUserEmail(matches[0]);
+      }
+    } catch (error) {
+      setError({ type: 'danger', message: 'Error al procesar el mensaje' });
+      console.error('Error en handleSend:', error);
+    } finally {
+      setTyping(false);
     }
   };
 
   async function processMessageToChatGPT(chatMessages) {
     let apiMessages = chatMessages.map((messageObject) => {
-      let role = "";
-      if (messageObject.sender === "ChatGPT") {
-        role = "assistant";
-      } else {
-        role = "user";
-      }
+      let role = messageObject.sender === "ChatGPT" ? "assistant" : "user";
       return { role: role, content: messageObject.message };
     });
 
-    // role: "user" -> message from user
-    // role: "assistan" -> message from ChatGPT
-    // role: "system" -> initial message defining HOW chat will talk
-
-    const systemMessage = {
-      role: "system",
-      content: `Eres un nutriologo experto, y solo puedes responder preguntas de esa area (preguntas fuera de este 
-         tema debes decir que no estas relacionado a ellos), después de recibir el nombre del usuario, vas 
-         a preguntar las siguientes cosas y esperar a que te responda pregunta por pregunta. Las preguntas son: 
-         ¿Cual es tu edad?, ¿Cual es tu peso actual?, ¿Cual es tu altura?, ¿Cual es tu sexo?, 
-         ¿Que tipo de actividad fisica realizas, si realizas?, 
-         con base a esas respuestas vas a calcular el imc y brindarle al usuario un plan alimenticio con base a 
-         para que quiere el plan, también debes considerar alergias a medicamentos y alimentos, 
-         y si sufre de alguna condicion médica crónica, además, considerar sus preferencias alimenticias como si es vegano, 
-         vegetariano u omnívoro, intolerante a la lactosa y otra información que consideres necesaria, para que 
-         le brindes mejores recomendaciones al usuario que se alineen con sus elecciones dietéticas.
-         
-         Para afinar el plan aplimentecio que proporcionarás al usuario, debes tener en cuenta la región o
-         lugar en el que vive el usuario. Así podras recomendarle alimentos que si esten a su alcance.
-
-         Recuerda al final, generar el plan alimenticio detallado.
-
-         Cuando generes el plan alimenticio, debes generar una tabla con formato HTML para que se vea de manera organizada y detallada al enviar el mensaje al usuario a través del chat y por correo.
-         
-         Recuerda ser siempre amigable y tambien hacer chistes de vez en cuando para hacer más amena la conversación.
-         También debes ofreceler junto con el plan nutricional, posibles recetas de como preparar los alimentos
-
-         Por ultimo, pidele el 'correo electrónico' al usuario de manera textual para poder guardarlo y enviar correo electronico y recuerdale que debe dar click al boton de descargar pdf para que tambien se envie el correo y se descargue el chat como pdf.
-         `,
-    };
-
-    const apiRequestBody = {
-      model: "gpt-3.5-turbo",
-      messages: [
-        systemMessage,
-        ...apiMessages, //[message1, message2, message3...]
-      ],
-    };
-
-    await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(apiRequestBody),
-    })
-      .then((data) => {
-        return data.json();
-      })
-      .then((data) => {
-        console.log(data);
-
-        if (
-          data.choices &&
-          data.choices.length > 0 &&
-          data.choices[0].message
-        ) {
-          const chatGPTMessage = data.choices[0].message.content;
-
-          if (chatGPTMessage) {
-            setMessages([
-              ...chatMessages,
-              {
-                message: chatGPTMessage,
-                sender: "ChatGPT",
-              },
-            ]);
-          } else {
-            console.error("El contenido del mensaje de ChatGPT es undefined.");
-          }
-        } else {
-          console.error(
-            "La estructura de la respuesta de la API no es la esperada:",
-            data
-          );
-        }
-
-        setTyping(false);
-      })
-      .catch((error) => {
-        console.error("Error al procesar la respuesta de la API:", error);
+    try {
+      const response = await fetch('/api/chat/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: apiMessages
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessages([...chatMessages, {
+          message: data.message,
+          sender: "ChatGPT"
+        }]);
+      } else {
+        throw new Error(data.error || 'Error en la respuesta del servidor');
+      }
+    } catch (error) {
+      setError({ type: 'danger', message: 'Error al comunicarse con el servidor' });
+      console.error('Error en processMessageToChatGPT:', error);
+      throw error;
+    }
   }
 
   return (
     <>
+      {error && (
+        <Alert 
+          variant={error.type} 
+          className="m-3"
+          onClose={() => setError(null)} 
+          dismissible
+        >
+          {error.message}
+        </Alert>
+      )}
 
       <div
         style={{
           position: "relative",
           margin: "0 auto",
-          marginTop: "1em",
-          maxWidth: "100%",
-          height: "700px",
-          width: "70vw", // Porcentaje del ancho de la ventana
-          overflowX: "hidden", // Para evitar que el contenido se desborde en pantallas pequeñas
+          height: "600px",
+          width: "100%",
+          overflowX: "hidden",
         }}
         ref={chatRef}
       >
         <MainContainer
           style={{
-            borderRadius: "10px",
+            borderRadius: "0",
+            border: "none",
           }}
         >
           <ChatContainer>
@@ -288,35 +248,38 @@ export function ChatBot() {
                 ) : null
               }
             >
-              {messages.map((message, i) => {
-                return (
-                  <Message scrollBehavior="smooth" key={i} model={message} />
-                );
-              })}
+              {messages.map((message, i) => (
+                <Message 
+                  scrollBehavior="smooth" 
+                  key={i} 
+                  model={message}
+                  style={{
+                    padding: "1rem",
+                  }}
+                />
+              ))}
             </MessageList>
             <MessageInput
-              placeholder="Escribe tu mensaje aquí"
+              placeholder="Escribe tu mensaje aquí..."
               onSend={handleSend}
+              style={{
+                borderTop: "1px solid #e9ecef",
+                padding: "1rem",
+              }}
             />
           </ChatContainer>
         </MainContainer>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="text-center p-3">
         <Button
-          style={{ width: "25rem", marginTop: "1em", marginBottom: "1em" }}
           variant="outline-primary"
           size="lg"
           onClick={generatePDF}
+          className="rounded-pill px-4"
+          disabled={isGeneratingPDF}
         >
-          Descargar Chat como PDF - Enviar correo
+          {isGeneratingPDF ? 'Generando PDF...' : 'Descargar Chat como PDF'}
         </Button>
       </div>
 
@@ -325,15 +288,18 @@ export function ChatBot() {
         onHide={handleClose}
         animation={false}
         backdrop="static"
+        centered
       >
-        <Modal.Header>
-          <Modal.Title>
-            Condiciones de Uso del Chatbot de Nutrición:
+        <Modal.Header className="bg-light">
+          <Modal.Title className="fw-bold">
+            Condiciones de Uso del Chatbot de Nutrición
           </Modal.Title>
         </Modal.Header>
         <Modal.Body
           style={{
             textAlign: "justify",
+            maxHeight: "70vh",
+            overflowY: "auto",
           }}
         >
           Bienvenido/a al Chatbot de Nutrición. Antes de utilizar nuestros
@@ -384,8 +350,8 @@ export function ChatBot() {
           actualizarse ocasionalmente, y te recomendamos que las revises
           periódicamente. ¡Gracias por utilizar nuestro Chatbot de Nutrición!
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleClose}>
+        <Modal.Footer className="bg-light">
+          <Button variant="primary" onClick={handleClose} className="rounded-pill px-4">
             Entendido
           </Button>
         </Modal.Footer>

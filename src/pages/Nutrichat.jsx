@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Sidebar } from '../components/SideBar';
+import { ChatBot } from '../components/ChatBot';
 
 export function Nutrichat() {
   return (
@@ -13,8 +14,19 @@ export function Nutrichat() {
 
         {/* Columna de Contenido */}
         <Col xs={12} md={9} lg={10} className="p-4">
-          <h1>Nutrichat</h1>
-          <p>Bienvenido a Nutrichat, tu asistente de nutrición interactivo.</p>
+          <div className="mb-4">
+            <h1 className="display-5 fw-bold text-dark mb-3">NutriChat</h1>
+            <p className="lead text-muted">
+              Tu asistente nutricional inteligente. Consulta sobre planes de alimentación, 
+              recetas y consejos nutricionales personalizados.
+            </p>
+          </div>
+
+          <Card className="border-0 shadow-sm">
+            <Card.Body className="p-0">
+              <ChatBot />
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
     </Container>
