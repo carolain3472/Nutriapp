@@ -14,6 +14,10 @@ import Alert from "react-bootstrap/Alert";
 
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Importar la base de conocimientos
+import { nutritionKnowledge, categorizeMessage, getRandomResponse } from '../data/nutritionKnowledge';
 
 export function ChatBot() {
   const [userEmail, setUserEmail] = useState('');
@@ -27,10 +31,15 @@ export function ChatBot() {
   const [typing, setTyping] = useState(false);
   const [messages, setMessages] = useState([
     {
-      message: "Hola, bienvenido a NutriChat, ¿me podrias dar tu nombre?",
+      message: "Hola, bienvenido a NutriChat, ¿me podrías dar tu nombre?",
       sender: "ChatGPT",
     },
   ]);
+
+  // Configuración de Gemini AI
+  const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'AIzaSyCfY7YTSZRJmLdu5bmonFR1Dnlj3aZGHV4';
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const sendEmail = async (userEmail, chatContent) => {
     try {
@@ -88,9 +97,13 @@ export function ChatBot() {
     setIsGeneratingPDF(true);
     setError(null);
 
+    // Declarar las variables fuera del bloque try
+    let originalHeight = '';
+    let originalOverflow = '';
+
     try {
-      const originalHeight = chatRef.current.style.height;
-      const originalOverflow = chatRef.current.style.overflow;
+      originalHeight = chatRef.current.style.height || 'auto';
+      originalOverflow = chatRef.current.style.overflow || 'auto';
 
       chatRef.current.style.height = "auto";
       chatRef.current.style.overflow = "visible";
@@ -173,41 +186,114 @@ export function ChatBot() {
     }
   };
 
+  // Función para buscar alimentos con USDA API
+  const searchFoodWithUSDA = async (foodName) => {
+    try {
+      const response = await fetch(
+        `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(foodName)}&pageSize=3&api_key=DEMO_KEY`
+      );
+      
+      const data = await response.json();
+      
+      if (data.foods && data.foods.length > 0) {
+        const food = data.foods[0];
+        let nutritionInfo = `**${food.description}**\n\n`;
+        
+        // Buscar nutrientes importantes
+        if (food.foodNutrients) {
+          food.foodNutrients.forEach(nutrient => {
+            const name = nutrient.nutrient?.name;
+            if (name === 'Energy' || name === 'Protein' || name === 'Carbohydrate, by difference') {
+              const unit = nutrient.nutrient?.unitName || '';
+              nutritionInfo += `🔸 ${name}: ${nutrient.amount?.toFixed(1)} ${unit}\n`;
+            }
+          });
+        }
+        
+        return nutritionInfo;
+      }
+      
+      return "No encontré información para ese alimento.";
+    } catch (error) {
+      console.error('Error con USDA API:', error);
+      return "Error al buscar información nutricional.";
+    }
+  };
+
   async function processMessageToChatGPT(chatMessages) {
-    let apiMessages = chatMessages.map((messageObject) => {
-      let role = messageObject.sender === "ChatGPT" ? "assistant" : "user";
-      return { role: role, content: messageObject.message };
-    });
+    const lastMessage = chatMessages[chatMessages.length - 1];
+    const userMessage = lastMessage.message;
+
+    // Manejar respuesta de nombre al inicio
+    if (userMessage.toLowerCase().includes('nombre') && chatMessages.length <= 3) {
+      const nombreMatch = userMessage.match(/(?:soy|me llamo|mi nombre es)\s+(\w+)/i);
+      const nombre = nombreMatch ? nombreMatch[1] : 'usuario';
+      const botResponse = `¡Mucho gusto, ${nombre}! Es un placer conocerte. Cuéntame, ¿cuáles son tus objetivos nutricionales? ¿Quieres perder peso, ganar masa muscular, o simplemente mantener una alimentación saludable? 😊`;
+      
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      
+      setMessages([...chatMessages, {
+        message: botResponse,
+        sender: "ChatGPT"
+      }]);
+      return;
+    }
 
     try {
-      const response = await fetch('/api/chat/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: apiMessages
-        }),
-      });
+      // Crear prompt especializado en nutrición para Gemini
+      const nutritionPrompt = `
+Eres NutriChat, un asistente nutricional experto y amigable. 
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+INSTRUCCIONES IMPORTANTES:
+- Responde SIEMPRE en español
+- Sé amigable, profesional y empático
+- Incluye emojis relevantes para hacer las respuestas más atractivas
+- Mantén las respuestas concisas pero informativas (máximo 250 palabras)
+- Enfócate SOLO en nutrición, alimentación saludable, recetas y bienestar
+- Si no estás seguro, recomienda consultar con un profesional de la salud
 
-      const data = await response.json();
+CONTEXTO: El usuario te está consultando sobre nutrición y alimentación.
 
-      if (data.success) {
-        setMessages([...chatMessages, {
-          message: data.message,
-          sender: "ChatGPT"
-        }]);
-      } else {
-        throw new Error(data.error || 'Error en la respuesta del servidor');
-      }
+Usuario pregunta: ${userMessage}
+
+Responde como NutriChat de manera conversacional y útil:`;
+
+      // Generar respuesta con Gemini
+      const result = await model.generateContent(nutritionPrompt);
+      const response = await result.response;
+      const botResponse = response.text().trim();
+
+      // Simulamos delay realista
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      
+      setMessages([...chatMessages, {
+        message: botResponse,
+        sender: "ChatGPT"
+      }]);
+
     } catch (error) {
-      setError({ type: 'danger', message: 'Error al comunicarse con el servidor' });
-      console.error('Error en processMessageToChatGPT:', error);
-      throw error;
+      console.error('Error con Gemini AI:', error);
+      
+      // Fallback a respuestas predefinidas si falla Gemini
+      let fallbackResponse = '';
+      const lowerMessage = userMessage.toLowerCase();
+      
+      if (lowerMessage.includes('hola') || lowerMessage.includes('buenos días')) {
+        fallbackResponse = '¡Hola! Soy NutriChat, tu asistente nutricional. ¿En qué puedo ayudarte hoy? 😊';
+      } else if (lowerMessage.includes('perder peso')) {
+        fallbackResponse = 'Para perder peso de manera saludable, te recomiendo crear un déficit calórico moderado, incluir proteínas en cada comida y mantenerte hidratado. ¿Te gustaría un plan más específico? 💪';
+      } else if (lowerMessage.includes('receta')) {
+        fallbackResponse = 'Me encanta ayudar con recetas saludables. ¿Hay algún ingrediente específico que te gustaría usar? 🍽️';
+      } else {
+        fallbackResponse = 'Como tu asistente nutricional, puedo ayudarte con planes de alimentación, recetas saludables, información nutricional y consejos de bienestar. ¿Qué te gustaría saber? 🥗';
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      
+      setMessages([...chatMessages, {
+        message: fallbackResponse,
+        sender: "ChatGPT"
+      }]);
     }
   }
 
