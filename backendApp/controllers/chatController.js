@@ -4,9 +4,16 @@ const OpenAI = require('openai');
 console.log('OPENAI_API_KEY loaded:', process.env.OPENAI_API_KEY ? 'YES' : 'NO');
 console.log('API Key length:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.length : 0);
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY?.trim(), 
-});
+// Solo instanciar OpenAI si hay API key
+let openai = null;
+
+if (process.env.OPENAI_API_KEY?.trim()) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY.trim(),
+  });
+} else {
+  console.warn('⚠️ No se ha definido OPENAI_API_KEY. El chat con el nutricionista no funcionará.');
+}
 
 const chatWithNutrionist = async (req, res) => {
   try {

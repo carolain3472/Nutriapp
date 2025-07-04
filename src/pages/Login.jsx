@@ -8,21 +8,43 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Aquí podrías agregar validaciones básicas de frontend
     if (!email || !password) {
       setError("Por favor, completa todos los campos.");
       return;
     }
-    setError("");
+    
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Simular almacenamiento de variables (por ejemplo, en localStorage)
-    localStorage.setItem("userEmail", email);
-    localStorage.setItem("userPassword", password);
+    const result = await response.json();
 
-    // Redireccionar a /perfil (la validación backend aún no está implementada)
-    navigate("/perfil");
+    if (response.ok) {
+      const user = result.user;
+
+      // Al hacer login exitoso:
+
+      localStorage.removeItem("token");
+      localStorage.setItem("token", result.token);
+
+      localStorage.removeItem("user");
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate("/perfil", { state: { user } });
+    } else {
+      setError(result.message || "Error al iniciar sesión");
+    }
+
+  } catch (err) {
+      console.error("Error al conectar con el backend:", err);
+      setError("Error de red. Verifica tu conexión.");
+    }
+
   };
 
   return (
