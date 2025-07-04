@@ -50,21 +50,43 @@ exports.register = async (req, res) => {
   }
 };
 
-
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
 
     const valid = await bcrypt.compare(password, user.password);
-    
-    if (!valid) return res.status(401).json({ message: 'Contraseña incorrecta' });
+    if (!valid) {
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d',
+    });
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    // Enviar todos los campos del usuario (menos la imagen y contraseña)
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        nombre: user.nombre,
+        apellidos: user.apellidos,
+        email: user.email,
+        fecha_nacimiento: user.fecha_nacimiento,
+        edad: user.edad,
+        altura: user.altura,
+        peso: user.peso,
+        genero: user.genero,
+        fotoUrl: `/api/auth/usuario/${user._id}/foto`,
+      },
+    });
+
   } catch (error) {
+    console.error('Error al iniciar sesión:', error);
     res.status(500).json({ message: 'Error del servidor' });
   }
 };

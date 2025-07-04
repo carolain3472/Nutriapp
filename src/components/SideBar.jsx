@@ -9,11 +9,19 @@ export function Sidebar({ userName }) {
 
   const [name, setName] = useState(userName || "");
   useEffect(() => {
-    if (!userName) {
-      const storedEmail = localStorage.getItem("userEmail") || "Usuario";
-      setName(storedEmail.split("@")[0]);
+    if (userName) {
+      setName(userName);
+    } else {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setName(`${user.nombre} ${user.apellidos}`);
+      } else {
+        setName("Usuario");
+      }
     }
   }, [userName]);
+
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -68,26 +76,46 @@ export function Sidebar({ userName }) {
   );
 
   // Componente perfil clicable
-  const ProfileSection = () => (
-    <div
-      className="text-center mb-4 cursor-pointer"
-      onClick={() => {
-        navigate("/perfil");
-        handleClose();
-      }}
-      style={{ cursor: 'pointer' }}
-    >
-      <Image
-        src="/profile.jpg"
-        roundedCircle
-        width={80}
-        height={80}
-        className="mb-2"
-      />
-      <div>Bienvenid@</div>
-      <strong>{name}</strong>
-    </div>
-  );
+  const ProfileSection = () => {
+    const [profilePic, setProfilePic] = useState('');
+
+    useEffect(() => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.fotoUrl) {
+          setProfilePic(`http://localhost:5000${user.fotoUrl}`);
+        }
+      } else {
+        console.log("error con la imagen")
+      }
+    }, []);
+
+    return (
+      <div
+        className="text-center mb-4 cursor-pointer"
+        onClick={() => {
+          navigate("/perfil");
+          handleClose();
+        }}
+        style={{ cursor: "pointer" }}
+      >
+        <Image
+          src={profilePic}
+          roundedCircle
+          width={80}
+          height={80}
+          className="mb-2"
+          onError={(e) => {
+            e.target.onerror = null;
+          }}
+        />
+        <div>Bienvenid@</div>
+        <strong>{name}</strong>
+      </div>
+    );
+  };
+
 
   return (
     <>

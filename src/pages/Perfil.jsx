@@ -10,10 +10,12 @@ import {
 } from 'react-bootstrap';
 import { Sidebar } from '../components/SideBar';
 import { useLocation } from 'react-router-dom';
-import "../styles/Perfil.css"; // Asegúrate de tener este archivo CSS
+import "../styles/Perfil.css";
 
 export function Perfil() {
-  // Estado para almacenar datos del usuario
+
+  const [refreshUser, setRefreshUser] = useState(false);
+
   const [userData, setUserData] = useState({
     photoUrl: '',
     firstName: '',
@@ -24,48 +26,44 @@ export function Perfil() {
     gender: '',
   });
 
-  // Estado para la nueva foto y su vista previa
   const [newPhotoFile, setNewPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
-
-  // Estados de manejo de carga y resultado de guardado
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(null); // null | true | false
-
+  const [saveSuccess, setSaveSuccess] = useState(null);
   const location = useLocation();
 
-  // Simular fetch de datos del usuario desde la base de datos
-  useEffect(() => {
-  if (location.state && location.state.user) {
-    const user = location.state.user;
-    setUserData({
-      photoUrl: user.photoUrl || 'https://via.placeholder.com/200',
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      birthDate: user.birthDate || '',
-      height: user.height || '',
-      weight: user.weight || '',
-      gender: user.gender || '',
-      age: user.age || '',
-    });
-    setPhotoPreview(user.photoUrl || 'https://via.placeholder.com/200');
-  } else {
-    // fallback: simulación o fetch desde backend si no se pasó por navegación
-    const mockUser = {
-      photoUrl: 'https://via.placeholder.com/200',
-      firstName: 'Ana',
-      lastName: 'García',
-      birthDate: '1992-11-03',
-      height: 168,
-      weight: 60,
-      gender: 'Femenino',
-    };
-    setUserData(mockUser);
-    setPhotoPreview(mockUser.photoUrl);
+  function calculateAge(fechaNacimiento) {
+    if (!fechaNacimiento) return '';
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const m = hoy.getMonth() - nacimiento.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--;
+    }
+    return edad;
   }
-}, [location.state]);
 
-  // Maneja cambio en el campo de peso
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setUserData({
+        photoUrl: `http://localhost:5000${user.fotoUrl}`,
+        firstName: user.nombre,
+        lastName: user.apellidos,
+        birthDate: user.fecha_nacimiento?.slice(0, 10) || '',
+        height: user.altura,
+        weight: user.peso,
+        gender: user.genero,
+        age: calculateAge(user.fecha_nacimiento),
+      });
+      setPhotoPreview(`http://localhost:5000${user.fotoUrl}`);
+    }
+  }, [location.state, refreshUser]); // ← incluye refreshUser
+
+
   const handleWeightChange = (e) => {
     setUserData((prev) => ({
       ...prev,
@@ -73,12 +71,10 @@ export function Perfil() {
     }));
   };
 
-  // Maneja selección de nuevo archivo de foto
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setNewPhotoFile(file);
-      // Generar vista previa local con FileReader
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
@@ -87,34 +83,54 @@ export function Perfil() {
     }
   };
 
-  // Función que se dispara al hacer click en "Guardar cambios"
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     setSaveSuccess(null);
 
     try {
-      // Construir FormData con peso y foto (si cambia)
+      const storedUser = JSON.parse(localStorage.getItem("user"));
       const formData = new FormData();
       formData.append('weight', userData.weight);
+      formData.append('userId', storedUser.id);
+
       if (newPhotoFile) {
         formData.append('photo', newPhotoFile);
       }
-      // Ejemplo de llamada a la API (ajusta la ruta según tu backend)
-      const response = await fetch('/api/user/update-profile', {
+
+      const response = await fetch('http://localhost:5000/api/auth/update-profile', {
         method: 'POST',
         body: formData,
       });
+
       if (!response.ok) {
         throw new Error('Error al guardar cambios');
       }
-      // La API puede devolver la nueva URL de foto y/o el peso actualizado
+
       const updated = await response.json();
+
+      // 👇 Verifica que photoUrl viene del backend y lo actualizas
+      const updatedPhotoUrl = updated.photoUrl
+        ? `http://localhost:5000${updated.photoUrl}` // Evitar caché
+        : userData.photoUrl;
+
       setUserData((prev) => ({
         ...prev,
-        photoUrl: updated.photoUrl || prev.photoUrl,
+        photoUrl: updatedPhotoUrl,
         weight: updated.weight || prev.weight,
       }));
+      setPhotoPreview(updatedPhotoUrl);
+
+      // 🔄 ACTUALIZAR localStorage
+      const updatedUser = {
+        ...storedUser,
+        peso: updated.weight || storedUser.peso,
+        fotoUrl: updated.photoUrl || storedUser.fotoUrl, // ← esto es clave
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setRefreshUser(prev => !prev); 
+
+
       setNewPhotoFile(null);
       setSaveSuccess(true);
     } catch (error) {
@@ -125,15 +141,14 @@ export function Perfil() {
     }
   };
 
+
   return (
     <Container fluid className="p-0">
       <Row className="g-0">
-        {/* Columna del Sidebar: no se modifica aquí */}
         <Col xs={12} md={3} lg={2} className="p-0">
           <Sidebar userName={`${userData.firstName} ${userData.lastName}`} />
         </Col>
 
-        {/* Columna de Contenido: aplicamos solo los estilos de contenido de perfil */}
         <Col xs={12} md={9} lg={10} className="p-4">
           <div className="perfil-content">
             <h1>Mi Perfil</h1>
@@ -141,7 +156,6 @@ export function Perfil() {
             <Form onSubmit={handleSave} className="perfil-form">
               <Row className="align-items-center">
                 <Col xs={12} md={4} className="text-center mb-4 mb-md-0">
-                  {/* Vista previa de la foto */}
                   <Image
                     src={photoPreview || 'https://via.placeholder.com/200'}
                     className="perfil-avatar mb-3"
@@ -149,9 +163,7 @@ export function Perfil() {
                     fluid
                   />
                   <Form.Group controlId="formPhoto">
-                    <Form.Label className="form-label">
-                      Cambiar foto de perfil
-                    </Form.Label>
+                    <Form.Label className="form-label">Cambiar foto de perfil</Form.Label>
                     <Form.Control
                       type="file"
                       accept="image/*"
@@ -161,100 +173,50 @@ export function Perfil() {
                 </Col>
 
                 <Col xs={12} md={8}>
-                  {/* Nombre (solo lectura) */}
                   <Form.Group as={Row} controlId="formFirstName" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Nombre
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Nombre</Form.Label>
                     <Col sm={8}>
-                      <Form.Control
-                        type="text"
-                        value={userData.firstName}
-                        readOnly
-                        
-                      />
+                      <Form.Control type="text" value={userData.firstName} readOnly />
                     </Col>
                   </Form.Group>
 
-                  {/* Apellidos (solo lectura) */}
                   <Form.Group as={Row} controlId="formLastName" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Apellidos
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Apellidos</Form.Label>
                     <Col sm={8}>
-                      <Form.Control
-                        type="text"
-                        value={userData.lastName}
-                        readOnly
-                        
-                      />
+                      <Form.Control type="text" value={userData.lastName} readOnly />
                     </Col>
                   </Form.Group>
 
-                  {/* Fecha de nacimiento (solo lectura) */}
                   <Form.Group as={Row} controlId="formBirthDate" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Fecha de Nacimiento
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Fecha de Nacimiento</Form.Label>
                     <Col sm={8}>
-                      <Form.Control
-                        type="date"
-                        value={userData.birthDate}
-                        readOnly
-                      />
+                      <Form.Control type="date" value={userData.birthDate} readOnly />
                     </Col>
                   </Form.Group>
 
-                  {/* Edad (calculada, solo lectura) */}
                   <Form.Group as={Row} controlId="formAge" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Edad
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Edad</Form.Label>
                     <Col sm={8}>
-                      <Form.Control
-                        type="text"
-                        value={userData.age}
-                        readOnly
-                        
-                      />
+                      <Form.Control type="text" value={userData.age} readOnly />
                     </Col>
                   </Form.Group>
 
-                  {/* Altura (solo lectura) */}
                   <Form.Group as={Row} controlId="formHeight" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Altura (cm)
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Altura (cm)</Form.Label>
                     <Col sm={8}>
-                      <Form.Control
-                        type="number"
-                        value={userData.height}
-                        readOnly
-                        
-                      />
+                      <Form.Control type="number" value={userData.height} readOnly />
                     </Col>
                   </Form.Group>
 
-                  {/* Género (solo lectura) */}
                   <Form.Group as={Row} controlId="formGender" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Género
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Género</Form.Label>
                     <Col sm={8}>
-                      <Form.Control
-                        type="text"
-                        value={userData.gender}
-                        readOnly
-                        
-                      />
+                      <Form.Control type="text" value={userData.gender} readOnly />
                     </Col>
                   </Form.Group>
 
-                  {/* Peso (editable) */}
                   <Form.Group as={Row} controlId="formWeight" className="mb-3">
-                    <Form.Label column sm={4} className="form-label">
-                      Peso (kg)
-                    </Form.Label>
+                    <Form.Label column sm={4} className="form-label">Peso (kg)</Form.Label>
                     <Col sm={8}>
                       <Form.Control
                         type="number"
@@ -269,25 +231,12 @@ export function Perfil() {
                 </Col>
               </Row>
 
-              {/* Botón de guardar */}
               <Row className="mt-4">
                 <Col className="text-end">
-                  <Button
-                    variant="dark"
-                    type="submit"
-                    className="btn-guardar"
-                    disabled={isSaving}
-                  >
+                  <Button variant="dark" type="submit" className="btn-guardar" disabled={isSaving}>
                     {isSaving ? (
                       <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="me-2"
-                        />
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
                         Guardando...
                       </>
                     ) : (
@@ -297,7 +246,6 @@ export function Perfil() {
                 </Col>
               </Row>
 
-              {/* Mensaje de éxito o error */}
               {saveSuccess === true && (
                 <Row className="mt-3">
                   <Col>
@@ -311,8 +259,7 @@ export function Perfil() {
                 <Row className="mt-3">
                   <Col>
                     <div className="alert alert-danger" role="alert">
-                      Ocurrió un error al guardar los cambios. Intenta de
-                      nuevo más tarde.
+                      Ocurrió un error al guardar los cambios. Intenta de nuevo más tarde.
                     </div>
                   </Col>
                 </Row>

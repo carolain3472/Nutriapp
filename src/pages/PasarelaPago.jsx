@@ -40,7 +40,10 @@ export function PaymentGateway() {
     height: "",
     weight: "",
     gender: "",
-    // CAMPOS DE FACTURACIÓN (ya existían)
+    email: "",
+    password: "",
+    confirmPassword: "",
+    // CAMPOS DE FACTURACIÓN 
     docType: "CC",
     docNumber: "",
     city: "",
@@ -48,7 +51,7 @@ export function PaymentGateway() {
     address: "",
     country: "",
     postalCode: "",
-    // CAMPOS DE PAGO (ya existían)
+    // CAMPOS DE PAGO 
     number: "",
     expiry: "",
     cvc: "",
@@ -92,14 +95,55 @@ export function PaymentGateway() {
     }
   };
 
+  const enviarRegistro = async () => {
+    const formData = new FormData();
+
+    formData.append("nombre", data.name);
+    formData.append("apellidos", data.lastName);
+    formData.append("fecha_nacimiento", data.birthDate);
+    formData.append("altura", data.height);
+    formData.append("peso", data.weight);
+    formData.append("genero", data.gender);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+
+    if (data.photoFile) {
+      formData.append("foto_perfil", data.photoFile);
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Registro exitoso");
+        setRegistered(true); // avanzar al formulario de pago
+      } else {
+        alert(`Error: ${result.error || "No se pudo registrar"}`);
+      }
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      alert("Ocurrió un error al registrar el usuario");
+    }
+  };
+
+
   /**
    * Al enviar el formulario de REGISTRO (perfil), validamos y avanzamos a pago.
    * @param {Event} e
    */
-  const handleRegistrationSubmit = (e) => {
+  const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
-    // Podrías agregar validaciones adicionales aquí si lo deseas.
-    setRegistered(true);
+    if (data.password !== data.confirmPassword) {
+      alert("Las contraseñas no coinciden.");
+      return;
+    }
+    
+    await enviarRegistro(); // hace el POST al backend
   };
 
   /**
@@ -137,23 +181,10 @@ export function PaymentGateway() {
           <Button
             variant="success"
             onClick={() =>
-              navigate("/perfil", {
-                state: {
-                  user: {
-                    photoUrl: data.photoPreview,
-                    firstName: data.name,
-                    lastName: data.lastName,
-                    birthDate: data.birthDate,
-                    height: data.height,
-                    weight: data.weight,
-                    gender: data.gender,
-                    age: calculateAge(data.birthDate),
-                  },
-                },
-              })
+              navigate("/login")
             }
           >
-            Ir a tu perfil
+            Iniciar sesión
           </Button>
         </Card>
       </Container>
@@ -283,6 +314,49 @@ export function PaymentGateway() {
                     min="0"
                     required
                   />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={data.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={data.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Confirmar Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="confirmPassword"
+                    value={data.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    isInvalid={data.confirmPassword && data.password !== data.confirmPassword}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Las contraseñas no coinciden.
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
 

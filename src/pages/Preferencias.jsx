@@ -47,7 +47,7 @@ export function Preferencias() {
     <Container fluid className="p-0">
       <Row className="g-0">
         <Col xs={12} md={3} lg={2} className="p-0">
-          <Sidebar userName="Usuario" />
+          <Sidebar />
         </Col>
         <Col xs={12} md={9} lg={10} className="p-4">
           <h1>Preferencias Alimenticias</h1>

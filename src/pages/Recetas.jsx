@@ -8,7 +8,7 @@ export function Recetas() {
       <Row className="g-0">
         {/* Columna del Sidebar */}
         <Col xs={12} md={3} lg={2} className="p-0">
-          <Sidebar userName="Usuario" />
+          <Sidebar />
         </Col>
 
         {/* Columna de Contenido */}
