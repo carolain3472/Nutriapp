@@ -8,6 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Recetas } from './pages/Recetas';
 import { Nutrichat } from './pages/Nutrichat';
 import { Preferencias } from './pages/Preferencias';
+import Questionnaire from './components/Questionnaire';
 
 
 
@@ -33,6 +34,7 @@ function App() {
       <Route path='/recetas' element ={<Recetas/>} />
       <Route path='/nutrichat' element ={<Nutrichat/>} />
       <Route path='/preferencias' element ={<Preferencias/>} />
+      <Route path='/questionnaire' element={<Questionnaire />} />
       {/* <Route path='/login' element ={<Login_template/>} /> */}
     
     </Routes>

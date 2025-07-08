@@ -1,4 +1,5 @@
 const OpenAI = require('openai');
+const User = require('../models/User'); // Importar el modelo de usuario
 
 // Debug: verificar si la API key está cargada
 console.log('OPENAI_API_KEY loaded:', process.env.OPENAI_API_KEY ? 'YES' : 'NO');
@@ -18,26 +19,43 @@ if (process.env.OPENAI_API_KEY?.trim()) {
 const chatWithNutrionist = async (req, res) => {
   try {
     const { messages } = req.body;
+    const { userId } = req; // ID del usuario desde el middleware de autenticación
+
+    // Buscar al usuario y sus preferencias
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+    }
+
+    const { preferences } = user;
+    
+    // Contexto de sistema dinámico con las preferencias del usuario
+    let context = `Eres un nutriólogo experto y solo puedes responder preguntas de esa área (si te preguntan otra cosa, amablemente di que no es tu especialidad). `;
+    context += `Estás asesorando a ${user.nombre}. `;
+
+    if (preferences) {
+      context += `Aquí tienes el contexto sobre ${user.nombre}:
+      - Objetivo: ${preferences.objetivo || 'No especificado'}.
+      - Requerimientos de salud: ${preferences.requerimientosSalud || 'Ninguno'}.
+      - Peso: ${preferences.peso || 'No especificado'} kg.
+      - Estatura: ${preferences.estatura || 'No especificada'} cm.
+      - Edad: ${preferences.edad || 'No especificada'} años.
+      - Tipo de dieta: ${preferences.tipoDieta || 'No especificada'}.
+      - Alergias: ${preferences.alergias || 'Ninguna'}.
+      - Intolerancias: ${preferences.intolerancias || 'Ninguna'}.
+      - Comidas por día: ${preferences.comidasPorDia || 'No especificado'}.
+      - Grupos de alimentos preferidos: ${preferences.grupoAlimentosPreferido?.join(', ') || 'No especificados'}.
+      - Alimentos favoritos: ${preferences.alimentosFavoritos || 'No especificados'}.
+      - Platillos favoritos: ${preferences.platillosFavoritos || 'No especificados'}.
+      
+      Usa esta información para dar recomendaciones altamente personalizadas. No necesitas volver a preguntar estos datos. Sé proactivo y ofrece consejos basados en sus metas y restricciones. Por ejemplo, si quiere bajar de peso y es vegetariano, sugiérele recetas vegetarianas bajas en calorías. Si es alérgico a algo, NUNCA se lo recomiendes.`;
+    } else {
+      context += `El usuario aún no ha completado su perfil de preferencias. Anímale a que lo haga para poder darle un mejor servicio.`;
+    }
 
     const systemMessage = {
       role: "system",
-      content: `Eres un nutriólogo experto, y solo puedes responder preguntas de esa área (preguntas fuera de este 
-         tema debes decir que no estás relacionado a ellos), después de recibir el nombre del usuario, vas 
-         a preguntar las siguientes cosas y esperar a que te responda pregunta por pregunta. Las preguntas son: 
-         ¿Cuál es tu edad?, ¿Cuál es tu peso actual?, ¿Cuál es tu altura?, ¿Cuál es tu sexo?, 
-         ¿Qué tipo de actividad física realizas, si realizas?, 
-         con base a esas respuestas vas a calcular el IMC y brindarle al usuario un plan alimenticio con base a 
-         para que quiere el plan, también debes considerar alergias a medicamentos y alimentos, 
-         y si sufre de alguna condición médica crónica, además, considerar sus preferencias alimenticias como si es vegano, 
-         vegetariano u omnívoro, intolerante a la lactosa y otra información que consideres necesaria, para que 
-         le brindes mejores recomendaciones al usuario que se alineen con sus elecciones dietéticas.
-         
-         Para afinar el plan alimenticio que proporcionarás al usuario, debes tener en cuenta la región o
-         lugar en el que vive el usuario. Así podrás recomendarle alimentos que sí estén a su alcance.
-
-         Recuerda al final, generar el plan alimenticio detallado.
-
-         Cuando generes el plan alimenticio, debes generar una tabla con formato HTML para que se vea de manera organizada y detallada al enviar el mensaje al usuario a través del chat y por correo.`
+      content: context
     };
 
     const response = await openai.chat.completions.create({

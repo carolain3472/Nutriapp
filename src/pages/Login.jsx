@@ -35,7 +35,13 @@ export function Login() {
 
       localStorage.removeItem("user");
       localStorage.setItem("user", JSON.stringify(user));
-      navigate("/perfil", { state: { user } });
+      
+      // Redirigir basado en si el cuestionario fue completado
+      if (user.hasCompletedQuestionnaire) {
+        navigate("/dashboard");
+      } else {
+        navigate("/questionnaire");
+      }
     } else {
       setError(result.message || "Error al iniciar sesión");
     }

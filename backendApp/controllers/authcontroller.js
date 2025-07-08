@@ -82,11 +82,65 @@ exports.login = async (req, res) => {
         peso: user.peso,
         genero: user.genero,
         fotoUrl: `/api/auth/usuario/${user._id}/foto`,
+        hasCompletedQuestionnaire: user.hasCompletedQuestionnaire,
+        preferences: user.preferences
       },
     });
 
   } catch (error) {
     console.error('Error al iniciar sesión:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+};
+
+exports.updatePreferences = async (req, res) => {
+  const { userId } = req;
+  const { peso, ...otherPreferences } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Manejar la actualización del peso de forma centralizada
+    if (peso !== undefined && peso !== null && !isNaN(parseFloat(peso))) {
+      const newWeight = parseFloat(peso);
+
+      // Si no hay peso inicial, establecerlo con el primer peso válido que se ingrese.
+      // La comprobación se hace más estricta para no sobreescribir si es 0.
+      if (user.pesoInicial === null || user.pesoInicial === undefined) {
+        user.pesoInicial = newWeight;
+      }
+      
+      // Actualizar el peso actual del usuario
+      user.peso = newWeight;
+
+      // Añadir al historial de peso
+      user.weightHistory.push({ weight: newWeight });
+
+      // Mantener la consistencia en el objeto de preferencias también
+      user.preferences.peso = newWeight.toString();
+    }
+    
+    // Actualizar el resto de las preferencias
+    // Usamos un bucle para evitar sobreescribir el objeto `preferences` completo
+    // y mantener el valor de `peso` que acabamos de establecer.
+    Object.keys(otherPreferences).forEach(key => {
+        user.preferences[key] = otherPreferences[key];
+    });
+
+    user.hasCompletedQuestionnaire = true;
+    
+    await user.save();
+
+    // Devolver el objeto de usuario completo y actualizado
+    const userResponse = user.toObject();
+    delete userResponse.password; // No enviar el hash de la contraseña
+
+    res.json({ message: 'Preferencias actualizadas correctamente', user: userResponse });
+  } catch (error) {
+    console.error('Error al actualizar las preferencias:', error);
     res.status(500).json({ message: 'Error del servidor' });
   }
 };
