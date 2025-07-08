@@ -1,84 +1,77 @@
-const OpenAI = require('openai');
-const User = require('../models/User'); // Importar el modelo de usuario
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const User = require('../models/User');
 
-// Debug: verificar si la API key está cargada
-console.log('OPENAI_API_KEY loaded:', process.env.OPENAI_API_KEY ? 'YES' : 'NO');
-console.log('API Key length:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.length : 0);
+const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
 
-// Solo instanciar OpenAI si hay API key
-let openai = null;
+const buildSystemPrompt = (user) => {
+    let prompt = `Eres un asistente de nutrición amigable y experto llamado NutriChat. Tu objetivo es ayudar a los usuarios a alcanzar sus metas de salud.`;
 
-if (process.env.OPENAI_API_KEY?.trim()) {
-  openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY.trim(),
-  });
-} else {
-  console.warn('⚠️ No se ha definido OPENAI_API_KEY. El chat con el nutricionista no funcionará.');
+    if (user && user.preferences) {
+        const { objetivo, tipoDieta, alergias, intolerancias, alimentosFavoritos, peso, estatura } = user.preferences;
+        prompt += `\nAquí tienes información sobre el usuario actual para personalizar tus respuestas:\n`;
+        if (objetivo) prompt += `- Objetivo principal: ${objetivo}.\n`;
+        if (tipoDieta) prompt += `- Tipo de dieta: ${tipoDieta}.\n`;
+        if (alergias) prompt += `- Alergias: ${alergias}.\n`;
+        if (intolerancias) prompt += `- Intolerancias: ${intolerancias}.\n`;
+        if (alimentosFavoritos) prompt += `- Alimentos favoritos: ${alimentosFavoritos}.\n`;
+        if (peso && estatura) {
+             const heightInMeters = parseFloat(estatura) / 100;
+             const bmi = (parseFloat(peso) / (heightInMeters * heightInMeters)).toFixed(2);
+             prompt += `- Peso: ${peso}kg, Estatura: ${estatura}cm, lo que da un IMC de ${bmi}.\n`;
+        }
+    }
+    prompt += `\nSé conciso, amigable y proporciona información precisa y útil.`;
+    return prompt;
 }
 
 const chatWithNutrionist = async (req, res) => {
-  try {
-    const { messages } = req.body;
-    const { userId } = req; // ID del usuario desde el middleware de autenticación
+    try {
+        const user = await User.findById(req.user.id).select('preferences');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
 
-    // Buscar al usuario y sus preferencias
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+        const { history, message } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ message: 'El mensaje no puede estar vacío.' });
+        }
+
+        const systemInstruction = buildSystemPrompt(user);
+        
+        const geminiHistory = (history || []).map(h => ({
+            role: h.role,
+            parts: [{ text: h.parts }]
+        }));
+
+        const chat = model.startChat({
+            history: [
+                { role: "user", parts: [{ text: systemInstruction }] },
+                { role: "model", parts: [{ text: "¡Hola! Soy NutriChat. ¿En qué puedo ayudarte hoy?" }] },
+                ...geminiHistory
+            ],
+            generationConfig: {
+              maxOutputTokens: 800,
+              temperature: 0.7,
+            },
+        });
+
+        const result = await chat.sendMessage(message);
+        const response = await result.response;
+        const text = response.text();
+
+        res.json({ reply: text });
+
+    } catch (error) {
+        console.error('Error in chatWithNutrionist:', error);
+        if (error.message && error.message.includes('API key')) {
+             return res.status(500).json({ message: 'Error de configuración: La clave de API de Gemini no es válida o no se ha proporcionado.' });
+        }
+        res.status(500).json({ message: 'Error interno del servidor en el chat' });
     }
-
-    const { preferences } = user;
-    
-    // Contexto de sistema dinámico con las preferencias del usuario
-    let context = `Eres un nutriólogo experto y solo puedes responder preguntas de esa área (si te preguntan otra cosa, amablemente di que no es tu especialidad). `;
-    context += `Estás asesorando a ${user.nombre}. `;
-
-    if (preferences) {
-      context += `Aquí tienes el contexto sobre ${user.nombre}:
-      - Objetivo: ${preferences.objetivo || 'No especificado'}.
-      - Requerimientos de salud: ${preferences.requerimientosSalud || 'Ninguno'}.
-      - Peso: ${preferences.peso || 'No especificado'} kg.
-      - Estatura: ${preferences.estatura || 'No especificada'} cm.
-      - Edad: ${preferences.edad || 'No especificada'} años.
-      - Tipo de dieta: ${preferences.tipoDieta || 'No especificada'}.
-      - Alergias: ${preferences.alergias || 'Ninguna'}.
-      - Intolerancias: ${preferences.intolerancias || 'Ninguna'}.
-      - Comidas por día: ${preferences.comidasPorDia || 'No especificado'}.
-      - Grupos de alimentos preferidos: ${preferences.grupoAlimentosPreferido?.join(', ') || 'No especificados'}.
-      - Alimentos favoritos: ${preferences.alimentosFavoritos || 'No especificados'}.
-      - Platillos favoritos: ${preferences.platillosFavoritos || 'No especificados'}.
-      
-      Usa esta información para dar recomendaciones altamente personalizadas. No necesitas volver a preguntar estos datos. Sé proactivo y ofrece consejos basados en sus metas y restricciones. Por ejemplo, si quiere bajar de peso y es vegetariano, sugiérele recetas vegetarianas bajas en calorías. Si es alérgico a algo, NUNCA se lo recomiendes.`;
-    } else {
-      context += `El usuario aún no ha completado su perfil de preferencias. Anímale a que lo haga para poder darle un mejor servicio.`;
-    }
-
-    const systemMessage = {
-      role: "system",
-      content: context
-    };
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [systemMessage, ...messages],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
-
-    res.json({
-      success: true,
-      message: response.choices[0].message.content
-    });
-
-  } catch (error) {
-    console.error('Error with OpenAI:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Error processing chat message'
-    });
-  }
 };
 
 module.exports = {
-  chatWithNutrionist
+    chatWithNutrionist,
 }; 
