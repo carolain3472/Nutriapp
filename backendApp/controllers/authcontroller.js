@@ -39,7 +39,8 @@ exports.register = async (req, res) => {
             data: req.file.buffer,
             contentType: req.file.mimetype
           }
-        : undefined
+        : undefined,
+      preferences: {} // Inicializar las preferencias como un objeto vacío
     });
 
     await nuevoUsuario.save();
@@ -94,7 +95,7 @@ exports.login = async (req, res) => {
 };
 
 exports.updatePreferences = async (req, res) => {
-  const { userId } = req;
+  const userId = req.user.id; // Correctamente extraído de req.user
   const { peso, ...otherPreferences } = req.body;
 
   try {

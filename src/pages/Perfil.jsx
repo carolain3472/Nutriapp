@@ -50,16 +50,16 @@ export function Perfil() {
     if (storedUser) {
       const user = JSON.parse(storedUser);
       setUserData({
-        photoUrl: `http://localhost:5000${user.fotoUrl}`,
-        firstName: user.nombre,
-        lastName: user.apellidos,
+        photoUrl: user.fotoUrl ? `http://localhost:5000${user.fotoUrl}` : '',
+        firstName: user.nombre || '',
+        lastName: user.apellidos || '',
         birthDate: user.fecha_nacimiento?.slice(0, 10) || '',
-        height: user.altura,
-        weight: user.peso,
-        gender: user.genero,
+        height: user.altura || '',
+        weight: user.peso || '',
+        gender: user.genero || '',
         age: calculateAge(user.fecha_nacimiento),
       });
-      setPhotoPreview(`http://localhost:5000${user.fotoUrl}`);
+      setPhotoPreview(user.fotoUrl ? `http://localhost:5000${user.fotoUrl}` : '');
     }
   }, [location.state, refreshUser]); // ← incluye refreshUser
 
