@@ -495,6 +495,7 @@ export const nutritionKnowledge = {
   };
   
   // Export de todas las funciones principales
+// eslint-disable-next-line
   export default {
     getSmartResponse,
     getIntelligentResponse,
