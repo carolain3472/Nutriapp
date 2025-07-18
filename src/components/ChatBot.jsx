@@ -17,6 +17,7 @@ import html2canvas from "html2canvas";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Importar la base de conocimientos
+// eslint-disable-next-line
 import { nutritionKnowledge, categorizeMessage, getRandomResponse } from '../data/nutritionKnowledge';
 
 export function ChatBot() {
