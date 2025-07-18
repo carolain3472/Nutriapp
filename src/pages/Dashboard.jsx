@@ -3,7 +3,9 @@ import { Container, Row, Col, Card, ListGroup } from 'react-bootstrap';
 import { Sidebar } from '../components/SideBar';
 
 export function Dashboard() {
+  // eslint-disable-next-line
   const [currentDate, setCurrentDate] = useState(new Date());
+  // eslint-disable-next-line
   const [dailyCalories, setDailyCalories] = useState(0);
   const [favoriteMeals] = useState([
     { name: 'Ensalada César', calories: 350 },
