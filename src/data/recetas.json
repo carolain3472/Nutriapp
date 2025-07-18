@@ -1,0 +1,567 @@
+[
+  {
+    "id": 1,
+    "nombre": "Ensalada de Quinoa y Garbanzos",
+    "descripcion": "Ideal para una comida post-entrenamiento, rica en proteínas vegetales.",
+    "tipo": "Almuerzo",
+    "tiempo": "20 min",
+    "nutricion": {
+      "calorias": 420,
+      "proteinas": 18,
+      "carbohidratos": 45,
+      "grasas": 15
+    },
+    "ingredientes": [
+      { "nombre": "Quinoa cocida", "cantidad": "1 taza", "alergenos": [] },
+      { "nombre": "Garbanzos cocidos", "cantidad": "1 taza", "alergenos": [] },
+      { "nombre": "Pimiento rojo", "cantidad": "1/2 unidad", "alergenos": [] },
+      {
+        "nombre": "Cilantro fresco",
+        "cantidad": "2 cucharadas",
+        "alergenos": []
+      },
+      {
+        "nombre": "Aceite de oliva",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      },
+      { "nombre": "Limón", "cantidad": "1 unidad (jugo)", "alergenos": [] }
+    ],
+    "pasos": [
+      "Enjuaga y escurre los garbanzos si son de lata.",
+      "Corta el pimiento en cubos pequeños.",
+      "En un bol, mezcla quinoa, garbanzos, pimiento y cilantro.",
+      "Aliña con aceite de oliva y jugo de limón.",
+      "Revuelve bien y sirve frío."
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Salmón a la Plancha con Espárragos",
+    "descripcion": "Fuente excelente de omega 3 y bajo en carbohidratos.",
+    "tipo": "Cena",
+    "tiempo": "25 min",
+    "nutricion": {
+      "calorias": 450,
+      "proteinas": 38,
+      "carbohidratos": 10,
+      "grasas": 28
+    },
+    "ingredientes": [
+      {
+        "nombre": "Filete de salmón",
+        "cantidad": "150 g",
+        "alergenos": ["Pescado"]
+      },
+      { "nombre": "Espárragos", "cantidad": "10 unidades", "alergenos": [] },
+      {
+        "nombre": "Aceite de oliva",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      },
+      {
+        "nombre": "Ajo en polvo",
+        "cantidad": "1 cucharadita",
+        "alergenos": []
+      },
+      { "nombre": "Sal y pimienta", "cantidad": "al gusto", "alergenos": [] }
+    ],
+    "pasos": [
+      "Precalienta una sartén con aceite de oliva.",
+      "Salpimienta el salmón y cocínalo 3-4 minutos por lado.",
+      "En otra sartén, saltea los espárragos con ajo en polvo.",
+      "Sirve todo caliente."
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "Panqueques de Avena y Plátano",
+    "descripcion": "Ricos en fibra, perfectos para un desayuno energético.",
+    "tipo": "Desayuno",
+    "tiempo": "15 min",
+    "nutricion": {
+      "calorias": 320,
+      "proteinas": 9,
+      "carbohidratos": 45,
+      "grasas": 12
+    },
+    "ingredientes": [
+      {
+        "nombre": "Avena molida",
+        "cantidad": "1/2 taza",
+        "alergenos": ["Gluten"]
+      },
+      { "nombre": "Plátano maduro", "cantidad": "1 unidad", "alergenos": [] },
+      { "nombre": "Huevo", "cantidad": "1 unidad", "alergenos": ["Huevo"] },
+      { "nombre": "Leche vegetal", "cantidad": "1/3 taza", "alergenos": [] },
+      { "nombre": "Canela", "cantidad": "1/2 cucharadita", "alergenos": [] }
+    ],
+    "pasos": [
+      "Tritura el plátano y mezcla con el huevo.",
+      "Agrega la avena, leche y canela.",
+      "Cocina porciones en sartén antiadherente 2-3 minutos por lado."
+    ]
+  },
+  {
+    "id": 4,
+    "nombre": "Wrap Integral de Pollo",
+    "descripcion": "Fuente magra de proteína ideal para almuerzo o snack.",
+    "tipo": "Almuerzo",
+    "tiempo": "15 min",
+    "nutricion": {
+      "calorias": 360,
+      "proteinas": 28,
+      "carbohidratos": 30,
+      "grasas": 12
+    },
+    "ingredientes": [
+      {
+        "nombre": "Tortilla integral",
+        "cantidad": "1 unidad",
+        "alergenos": ["Gluten"]
+      },
+      {
+        "nombre": "Pechuga de pollo cocida",
+        "cantidad": "100 g",
+        "alergenos": []
+      },
+      { "nombre": "Lechuga", "cantidad": "1 hoja", "alergenos": [] },
+      { "nombre": "Tomate", "cantidad": "2 rodajas", "alergenos": [] },
+      {
+        "nombre": "Yogur natural",
+        "cantidad": "1 cucharada",
+        "alergenos": ["Lácteos"]
+      }
+    ],
+    "pasos": [
+      "Coloca la tortilla en una superficie plana.",
+      "Agrega pollo, tomate, lechuga y yogur.",
+      "Enrolla firmemente y corta en mitades."
+    ]
+  },
+  {
+    "id": 5,
+    "nombre": "Tofu al Curry con Verduras",
+    "descripcion": "Opción vegana con alto contenido proteico.",
+    "tipo": "Cena",
+    "tiempo": "30 min",
+    "nutricion": {
+      "calorias": 390,
+      "proteinas": 22,
+      "carbohidratos": 25,
+      "grasas": 20
+    },
+    "ingredientes": [
+      { "nombre": "Tofu firme", "cantidad": "150 g", "alergenos": ["Soja"] },
+      { "nombre": "Leche de coco", "cantidad": "1/2 taza", "alergenos": [] },
+      { "nombre": "Brócoli", "cantidad": "1 taza", "alergenos": [] },
+      { "nombre": "Zanahoria", "cantidad": "1 unidad", "alergenos": [] },
+      {
+        "nombre": "Curry en polvo",
+        "cantidad": "1 cucharadita",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "Corta y saltea el tofu en una sartén.",
+      "Agrega las verduras y cocina por 5 minutos.",
+      "Añade leche de coco y curry, deja reducir por 10 minutos.",
+      "Sirve caliente con arroz integral (opcional)."
+    ]
+  },
+  {
+    "id": 6,
+    "nombre": "Yogur Griego con Frutas y Chía",
+    "descripcion": "Desayuno rápido, bajo en azúcar y rico en calcio.",
+    "tipo": "Desayuno",
+    "tiempo": "5 min",
+    "nutricion": {
+      "calorias": 280,
+      "proteinas": 15,
+      "carbohidratos": 22,
+      "grasas": 10
+    },
+    "ingredientes": [
+      {
+        "nombre": "Yogur griego natural",
+        "cantidad": "1 taza",
+        "alergenos": ["Lácteos"]
+      },
+      { "nombre": "Frutas mixtas", "cantidad": "1/2 taza", "alergenos": [] },
+      {
+        "nombre": "Semillas de chía",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      },
+      { "nombre": "Miel", "cantidad": "1 cucharadita", "alergenos": [] }
+    ],
+    "pasos": [
+      "Coloca el yogur en un bowl.",
+      "Agrega frutas frescas y espolvorea chía.",
+      "Endulza con miel y sirve frío."
+    ]
+  },
+  {
+    "id": 7,
+    "nombre": "Arroz Integral con Atún y Aguacate",
+    "descripcion": "Rico en grasas buenas y proteína, ideal para almuerzo rápido.",
+    "tipo": "Almuerzo",
+    "tiempo": "15 min",
+    "nutricion": {
+      "calorias": 430,
+      "proteinas": 25,
+      "carbohidratos": 38,
+      "grasas": 18
+    },
+    "ingredientes": [
+      {
+        "nombre": "Arroz integral cocido",
+        "cantidad": "1 taza",
+        "alergenos": []
+      },
+      {
+        "nombre": "Atún en agua",
+        "cantidad": "1 lata",
+        "alergenos": ["Pescado"]
+      },
+      { "nombre": "Aguacate", "cantidad": "1/2 unidad", "alergenos": [] },
+      { "nombre": "Cilantro", "cantidad": "1 cucharada", "alergenos": [] },
+      {
+        "nombre": "Jugo de limón",
+        "cantidad": "1 cucharadita",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "Mezcla el arroz con atún escurrido.",
+      "Agrega aguacate cortado en cubos y cilantro.",
+      "Aliña con limón y sirve frío o templado."
+    ]
+  },
+  {
+    "id": 8,
+    "nombre": "Huevos revueltos con Espinaca",
+    "descripcion": "Desayuno proteico y bajo en carbohidratos.",
+    "tipo": "Desayuno",
+    "tiempo": "10 min",
+    "nutricion": {
+      "calorias": 270,
+      "proteinas": 18,
+      "carbohidratos": 4,
+      "grasas": 20
+    },
+    "ingredientes": [
+      { "nombre": "Huevos", "cantidad": "2 unidades", "alergenos": ["Huevo"] },
+      { "nombre": "Espinaca fresca", "cantidad": "1 taza", "alergenos": [] },
+      {
+        "nombre": "Aceite de oliva",
+        "cantidad": "1 cucharadita",
+        "alergenos": []
+      },
+      { "nombre": "Sal", "cantidad": "al gusto", "alergenos": [] }
+    ],
+    "pasos": [
+      "Bate los huevos con sal.",
+      "Saltea la espinaca brevemente.",
+      "Agrega los huevos y revuelve hasta que cuajen.",
+      "Sirve caliente."
+    ]
+  },
+  {
+    "id": 9,
+    "nombre": "Batido de Proteínas con Espinaca",
+    "descripcion": "Ideal para un desayuno rápido y nutritivo.",
+    "tipo": "Desayuno",
+    "tiempo": "5 min",
+    "nutricion": {
+      "calorias": 300,
+      "proteinas": 25,
+      "carbohidratos": 30,
+      "grasas": 8
+    },
+    "ingredientes": [
+      { "nombre": "Leche de almendras", "cantidad": "1 taza", "alergenos": [] },
+      { "nombre": "Espinaca fresca", "cantidad": "1 taza", "alergenos": [] },
+      {
+        "nombre": "Proteína en polvo",
+        "cantidad": "1 scoop",
+        "alergenos": ["Lácteos"]
+      },
+      { "nombre": "Plátano", "cantidad": "1 unidad", "alergenos": [] },
+      {
+        "nombre": "Semillas de lino",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "Coloca todos los ingredientes en una licuadora.",
+      "Mezcla hasta obtener una consistencia suave.",
+      "Sirve frío."
+    ]
+  },
+
+  {
+    "id": 10,
+    "nombre": "Bowl de Yogur con Granola y Frutas",
+    "descripcion": "Desayuno delicioso y lleno de energía.",
+    "tipo": "Desayuno",
+    "tiempo": "5 min",
+    "nutricion": {
+      "calorias": 350,
+      "proteinas": 12,
+      "carbohidratos": 50,
+      "grasas": 10
+    },
+    "ingredientes": [
+      {
+        "nombre": "Yogur natural",
+        "cantidad": "1 taza",
+        "alergenos": ["Lácteos"]
+      },
+      { "nombre": "Granola", "cantidad": "1/4 taza", "alergenos": ["Gluten"] },
+      { "nombre": "Frutas variadas", "cantidad": "1/2 taza", "alergenos": [] },
+      { "nombre": "Miel", "cantidad": "1 cucharadita", "alergenos": [] }
+    ],
+    "pasos": [
+      "Coloca el yogur en un bowl.",
+      "Agrega la granola y las frutas por encima.",
+      "Endulza con miel al gusto."
+    ]
+  },
+
+  {
+    "id": 11,
+    "nombre": "Tortilla de Verduras",
+    "descripcion": "Rápida y fácil, ideal para un almuerzo ligero.",
+    "tipo": "Almuerzo",
+    "tiempo": "15 min",
+    "nutricion": {
+      "calorias": 250,
+      "proteinas": 14,
+      "carbohidratos": 10,
+      "grasas": 16
+    },
+    "ingredientes": [
+      { "nombre": "Huevos", "cantidad": "3 unidades", "alergenos": ["Huevo"] },
+      { "nombre": "Pimiento verde", "cantidad": "1/2 unidad", "alergenos": [] },
+      { "nombre": "Cebolla", "cantidad": "1/4 unidad", "alergenos": [] },
+      { "nombre": "Espinaca", "cantidad": "1 taza", "alergenos": [] },
+      {
+        "nombre": "Aceite de oliva",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "Bate los huevos en un bol.",
+      "Pica las verduras y saltéalas en aceite de oliva.",
+      "Agrega los huevos batidos y cocina hasta que cuajen.",
+      "Sirve caliente."
+    ]
+  },
+
+  {
+    "id": 12,
+    "nombre": "Sopa de Lentejas",
+    "descripcion": "Reconfortante y nutritiva, ideal para la cena.",
+    "tipo": "Cena",
+    "tiempo": "40 min",
+    "nutricion": {
+      "calorias": 300,
+      "proteinas": 18,
+      "carbohidratos": 45,
+      "grasas": 5
+    },
+    "ingredientes": [
+      { "nombre": "Lentejas", "cantidad": "1 taza", "alergenos": [] },
+      { "nombre": "Zanahoria", "cantidad": "1 unidad", "alergenos": [] },
+      { "nombre": "Cebolla", "cantidad": "1/2 unidad", "alergenos": [] },
+      { "nombre": "Apio", "cantidad": "1 tallo", "alergenos": [] },
+      {
+        "nombre": "Caldo de verduras",
+        "cantidad": "4 tazas",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "En una olla, sofríe cebolla, zanahoria y apio picados.",
+      "Agrega las lentejas y el caldo de verduras.",
+      "Cocina a fuego medio por 30 minutos o hasta que las lentejas estén tiernas.",
+      "Sirve caliente."
+    ]
+  },
+
+  {
+    "id": 13,
+    "nombre": "Batata Asada con Hummus",
+    "descripcion": "Plato vegano rico en fibra y antioxidantes.",
+    "tipo": "Almuerzo",
+    "tiempo": "45 min",
+    "nutricion": {
+      "calorias": 350,
+      "proteinas": 8,
+      "carbohidratos": 60,
+      "grasas": 10
+    },
+    "ingredientes": [
+      { "nombre": "Batata", "cantidad": "1 unidad grande", "alergenos": [] },
+      { "nombre": "Hummus", "cantidad": "1/4 taza", "alergenos": ["Sesamo"] },
+      {
+        "nombre": "Perejil fresco",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      },
+      {
+        "nombre": "Aceite de oliva",
+        "cantidad": "1 cucharadita",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "Precalienta el horno a 200°C.",
+      "Lava y pincha la batata con un tenedor.",
+      "Hornea por 40 minutos o hasta que esté tierna.",
+      "Sirve con hummus y perejil picado."
+    ]
+  },
+
+  {
+    "id": 14,
+    "nombre": "Pasta Integral con Pesto y Tomate Cherry",
+    "descripcion": "Plato ligero y lleno de sabor, ideal para el almuerzo.",
+    "tipo": "Almuerzo",
+    "tiempo": "20 min",
+    "nutricion": {
+      "calorias": 400,
+      "proteinas": 15,
+      "carbohidratos": 60,
+      "grasas": 12
+    },
+    "ingredientes": [
+      {
+        "nombre": "Pasta integral",
+        "cantidad": "1 taza cocida",
+        "alergenos": ["Gluten"]
+      },
+      {
+        "nombre": "Pesto",
+        "cantidad": "2 cucharadas",
+        "alergenos": ["Nueces"]
+      },
+      { "nombre": "Tomate cherry", "cantidad": "1/2 taza", "alergenos": [] },
+      {
+        "nombre": "Queso parmesano rallado",
+        "cantidad": "2 cucharadas",
+        "alergenos": ["Lácteos"]
+      }
+    ],
+    "pasos": [
+      "Cocina la pasta según las instrucciones del paquete.",
+      "Mezcla la pasta caliente con pesto y tomates cherry cortados a la mitad.",
+      "Espolvorea queso parmesano por encima y sirve."
+    ]
+  },
+
+  {
+    "id": 15,
+    "nombre": "Chili Vegetariano",
+    "descripcion": "Plato reconfortante y lleno de proteínas vegetales.",
+    "tipo": "Cena",
+    "tiempo": "30 min",
+    "nutricion": {
+      "calorias": 350,
+      "proteinas": 20,
+      "carbohidratos": 50,
+      "grasas": 10
+    },
+    "ingredientes": [
+      { "nombre": "Frijoles negros", "cantidad": "1 lata", "alergenos": [] },
+      { "nombre": "Pimiento rojo", "cantidad": "1 unidad", "alergenos": [] },
+      { "nombre": "Cebolla", "cantidad": "1/2 unidad", "alergenos": [] },
+      { "nombre": "Ajo", "cantidad": "2 dientes", "alergenos": [] },
+      { "nombre": "Comino", "cantidad": "1 cucharadita", "alergenos": [] },
+      { "nombre": "Pimentón", "cantidad": "1 cucharadita", "alergenos": [] },
+      { "nombre": "Caldo de verduras", "cantidad": "2 tazas", "alergenos": [] }
+    ],
+    "pasos": [
+      "En una olla, sofríe cebolla, pimiento y ajo picados.",
+      "Agrega los frijoles, caldo y especias.",
+      "Cocina a fuego lento por 20 minutos.",
+      "Sirve caliente."
+    ]
+  },
+
+  {
+    "id": 16,
+    "nombre": "Smoothie Bowl de Mango y Coco",
+    "descripcion": "Desayuno refrescante y tropical, lleno de antioxidantes.",
+    "tipo": "Desayuno",
+    "tiempo": "10 min",
+    "nutricion": {
+      "calorias": 300,
+      "proteinas": 5,
+      "carbohidratos": 50,
+      "grasas": 10
+    },
+    "ingredientes": [
+      { "nombre": "Mango congelado", "cantidad": "1 taza", "alergenos": [] },
+      { "nombre": "Leche de coco", "cantidad": "1/2 taza", "alergenos": [] },
+      {
+        "nombre": "Semillas de chía",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      },
+      { "nombre": "Coco rallado", "cantidad": "2 cucharadas", "alergenos": [] },
+      {
+        "nombre": "Frutas frescas para decorar",
+        "cantidad": "",
+        "alergenos": []
+      }
+    ],
+    "pasos": [
+      "Licúa el mango con la leche de coco hasta obtener una mezcla suave.",
+      "Vierte en un bowl y decora con semillas de chía, coco rallado y frutas frescas.",
+      "Sirve inmediatamente."
+    ]
+  },
+
+  {
+    "id": 17,
+    "nombre": "Tacos de Pescado con Repollo",
+    "descripcion": "Tacos ligeros y frescos, perfectos para un almuerzo de verano.",
+    "tipo": "Almuerzo",
+    "tiempo": "20 min",
+    "nutricion": {
+      "calorias": 350,
+      "proteinas": 20,
+      "carbohidratos": 30,
+      "grasas": 15
+    },
+    "ingredientes": [
+      {
+        "nombre": "Filete de pescado blanco",
+        "cantidad": "150 g",
+        "alergenos": ["Pescado"]
+      },
+      {
+        "nombre": "Tortillas de maíz",
+        "cantidad": "2 unidades",
+        "alergenos": []
+      },
+      { "nombre": "Repollo rallado", "cantidad": "1/2 taza", "alergenos": [] },
+      {
+        "nombre": "Cilantro fresco",
+        "cantidad": "1 cucharada",
+        "alergenos": []
+      },
+      { "nombre": "Lima", "cantidad": "1 unidad (jugo)", "alergenos": [] }
+    ],
+    "pasos": [
+      "Cocina el pescado a la plancha o al horno hasta que esté cocido.",
+      "Calienta las tortillas en una sartén.",
+      "Arma los tacos con pescado, repollo, cilantro y jugo de lima.",
+      "Sirve inmediatamente."
+    ]
+  }
+]

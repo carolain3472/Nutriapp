@@ -1,8 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import { HashLink } from "react-router-hash-link";
+import { useNavigate } from "react-router-dom";
 
 export function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Aquí podrías agregar validaciones básicas de frontend
+    if (!email || !password) {
+      setError("Por favor, completa todos los campos.");
+      return;
+    }
+    
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      const user = result.user;
+
+      // Al hacer login exitoso:
+
+      localStorage.removeItem("token");
+      localStorage.setItem("token", result.token);
+
+      localStorage.removeItem("user");
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate("/perfil", { state: { user } });
+    } else {
+      setError(result.message || "Error al iniciar sesión");
+    }
+
+  } catch (err) {
+      console.error("Error al conectar con el backend:", err);
+      setError("Error de red. Verifica tu conexión.");
+    }
+
+  };
+
   return (
     <Container
       fluid
@@ -50,7 +94,13 @@ export function Login() {
                 Iniciar sesión
               </Card.Subtitle>
 
-              <Form>
+              <Form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    {error}
+                  </div>
+                )}
+
                 <Form.Group className="mb-4" controlId="email">
                   <Form.Label className="fw-semibold">
                     Correo electrónico
@@ -61,6 +111,8 @@ export function Login() {
                     size="lg"
                     style={{ borderRadius: "12px" }}
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </Form.Group>
 
@@ -72,6 +124,8 @@ export function Login() {
                     size="lg"
                     style={{ borderRadius: "12px" }}
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </Form.Group>
 
@@ -92,13 +146,12 @@ export function Login() {
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
-                <HashLink
-                  smooth
-                  to="/#planes"
+                <a
+                  href="/#planes"
                   className="text-decoration-none text-secondary"
                 >
                   Adquiere un plan
-                </HashLink>
+                </a>
               </div>
             </Card.Body>
           </Card>
