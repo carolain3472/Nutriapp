@@ -34,7 +34,7 @@ export function Dashboard() {
     border: 'none',
     height: '100%'
   };
-
+// eslint-disable-next-line
   const cardHoverStyle = {
     ...cardStyle,
     transform: 'translateY(-5px)'
