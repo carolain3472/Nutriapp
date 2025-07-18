@@ -188,6 +188,7 @@ export function ChatBot() {
   };
 
   // Función para buscar alimentos con USDA API
+  // eslint-disable-next-line
   const searchFoodWithUSDA = async (foodName) => {
     try {
       const response = await fetch(
