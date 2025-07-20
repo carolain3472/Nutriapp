@@ -50,7 +50,7 @@ export function Perfil() {
     if (storedUser) {
       const user = JSON.parse(storedUser);
       setUserData({
-        photoUrl: `http://localhost:5000${user.fotoUrl}`,
+        photoUrl: `https://nutriapp-0agf.onrender.com${user.fotoUrl}`,
         firstName: user.nombre,
         lastName: user.apellidos,
         birthDate: user.fecha_nacimiento?.slice(0, 10) || '',
@@ -59,7 +59,7 @@ export function Perfil() {
         gender: user.genero,
         age: calculateAge(user.fecha_nacimiento),
       });
-      setPhotoPreview(`http://localhost:5000${user.fotoUrl}`);
+      setPhotoPreview(`https://nutriapp-0agf.onrender.com${user.fotoUrl}`);
     }
   }, [location.state, refreshUser]); // ← incluye refreshUser
 
@@ -98,7 +98,7 @@ export function Perfil() {
         formData.append('photo', newPhotoFile);
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+      const response = await fetch('https://nutriapp-0agf.onrender.com/api/auth/update-profile', {
         method: 'POST',
         body: formData,
       });
@@ -111,7 +111,7 @@ export function Perfil() {
 
       // 👇 Verifica que photoUrl viene del backend y lo actualizas
       const updatedPhotoUrl = updated.photoUrl
-        ? `http://localhost:5000${updated.photoUrl}` // Evitar caché
+        ? `https://nutriapp-0agf.onrender.com${updated.photoUrl}` // Evitar caché
         : userData.photoUrl;
 
       setUserData((prev) => ({
