@@ -12,7 +12,22 @@ const recipeRoutes = require('./routes/recipeRoutes');
 
 const app = express();
 
-app.use(cors({ origin: 'https://nutriapp-alpha-sage.vercel.app' }));
+const allowedOrigins = [
+  'https://nutriapp-alpha-sage.vercel.app',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Permitir requests sin origin (como Postman) o si está en la lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true // Si usas cookies, si no puedes quitarlo
+}));
 
 app.use(express.json());
 

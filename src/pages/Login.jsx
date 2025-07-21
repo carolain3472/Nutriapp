@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/api";
 
 export function Login() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export function Login() {
     }
     
     try {
-      const response = await fetch("https://nutriapp-0agf.onrender.com/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
