@@ -17,6 +17,7 @@ const allowedOrigins = [
   'http://localhost:3000'
 ];
 
+
 app.use(cors({
   origin: function(origin, callback) {
     // Permitir requests sin origin (como Postman) o si está en la lista
