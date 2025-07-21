@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Form, Button, Card, Spinner, Alert, Accordion } from 'react-bootstrap';
 import { Sidebar } from '../components/SideBar';
+import API_BASE_URL from "../config/api";
 
 export function Recetas() {
   const [recipes, setRecipes] = useState([]);
@@ -19,7 +20,7 @@ export function Recetas() {
         return;
       }
       
-      const url = query ? `/api/recipes?search=${encodeURIComponent(query)}` : '/api/recipes';
+      const url = query ? `${API_BASE_URL}/api/recipes?search=${encodeURIComponent(query)}` : `${API_BASE_URL}/api/recipes`;
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
