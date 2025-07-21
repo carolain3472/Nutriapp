@@ -12,7 +12,7 @@ const recipeRoutes = require('./routes/recipeRoutes');
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://nutriapp-alpha-sage.vercel.app' }));
 
 app.use(express.json());
 

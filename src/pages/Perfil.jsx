@@ -98,7 +98,7 @@ export function Perfil() {
         formData.append('photo', newPhotoFile);
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+      const response = await fetch('https://nutriapp-0agf.onrender.com/api/auth/update-profile', {
         method: 'POST',
         body: formData,
       });
@@ -111,7 +111,7 @@ export function Perfil() {
 
       // 👇 Verifica que photoUrl viene del backend y lo actualizas
       const updatedPhotoUrl = updated.photoUrl
-        ? `http://localhost:5000${updated.photoUrl}` // Evitar caché
+        ? `https://nutriapp-0agf.onrender.com${updated.photoUrl}` // Evitar caché
         : userData.photoUrl;
 
       setUserData((prev) => ({
