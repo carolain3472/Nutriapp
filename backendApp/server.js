@@ -1,11 +1,15 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const recipeRoutes = require('./routes/recipeRoutes');
 
-dotenv.config();
+
 const app = express();
 
 app.use(cors({ origin: 'https://nutriapp-alpha-sage.vercel.app' }));
@@ -14,13 +18,18 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/recipes', recipeRoutes);
 
 app.get('/', (req, res) => {
   res.send('Bienvenido a la API de Nutriapp');
 });
 
 console.log("OPENAI_API_KEY cargada:", process.env.OPENAI_API_KEY ? "SI" : "NO");
-console.log("Longitud de API Key:", process.env.OPENAI_API_KEY?.length || 0);
+console.log("REACT_APP_GEMINI_API_KEY cargada:", process.env.REACT_APP_GEMINI_API_KEY ? "SI" : "NO");
+console.log("Longitud de API Key (OpenAI):", process.env.OPENAI_API_KEY?.length || 0);
+console.log("Longitud de API Key (Gemini):", process.env.REACT_APP_GEMINI_API_KEY?.length || 0);
+
 
 mongoose
   .connect(process.env.MONGO_URI)

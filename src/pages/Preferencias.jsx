@@ -1,47 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { Sidebar } from '../components/SideBar';
 
 export function Preferencias() {
-  const [preferences, setPreferences] = useState({
-    goal: 'balanced',
-    allergies: [],
-    intolerances: [],
-    mealsPerDay: 3,
-    dietType: 'omnivore'
+  const [formData, setFormData] = useState({
+    objetivo: '',
+    requerimientosSalud: '',
+    peso: '',
+    estatura: '',
+    edad: '',
+    tipoDieta: '',
+    alergias: '',
+    intolerancias: '',
+    comidasPorDia: '',
+    grupoAlimentosPreferido: [],
+    alimentosFavoritos: '',
+    platillosFavoritos: ''
   });
+  const [initialWeight, setInitialWeight] = useState('');
+
+  useEffect(() => {
+    // Cargar las preferencias del usuario al montar el componente
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        if (user.preferences) {
+            setFormData(user.preferences);
+        }
+        if (user.pesoInicial) {
+            setInitialWeight(user.pesoInicial);
+        } else if (user.preferences && user.preferences.peso) {
+            // Si no hay peso inicial, usar el de preferencias como fallback
+            setInitialWeight(user.preferences.peso);
+        }
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox') {
-      setPreferences(prev => ({
-        ...prev,
-        [name]: checked ? [...prev[name], value] : prev[name].filter(v => v !== value)
-      }));
+        setFormData(prev => ({
+            ...prev,
+            grupoAlimentosPreferido: checked
+                ? [...prev.grupoAlimentosPreferido, value]
+                : prev.grupoAlimentosPreferido.filter(item => item !== value)
+        }));
     } else {
-      setPreferences(prev => ({ ...prev, [name]: value }));
+        setFormData({
+            ...formData,
+            [name]: value
+        });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Preferencias guardadas:', preferences);
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('No estás autenticado. Por favor, inicia sesión de nuevo.');
+        // Opcional: podrías redirigir al login
+        // navigate('/login');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/preferences', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            // Actualizar el usuario en localStorage con las nuevas preferencias
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.preferences = result.user.preferences;
+            localStorage.setItem('user', JSON.stringify(user));
+
+            alert('Preferencias actualizadas con éxito');
+        } else {
+            const error = await response.json();
+            alert(`Error al guardar tus preferencias: ${error.message}`);
+        }
+    } catch (error) {
+        console.error('Error de red:', error);
+        alert('No se pudo conectar con el servidor. Inténtalo más tarde.');
+    }
   };
-
-  const allergyOptions = [
-    { value: 'gluten', label: 'Gluten' },
-    { value: 'dairy', label: 'Lácteos' },
-    { value: 'nuts', label: 'Frutos secos' },
-    { value: 'shellfish', label: 'Mariscos' },
-    { value: 'soy', label: 'Soja' }
-  ];
-
-  const intoleranceOptions = [
-    { value: 'lactose', label: 'Lactosa' },
-    { value: 'fructose', label: 'Fructosa' },
-    { value: 'histamine', label: 'Histamina' },
-    { value: 'fodmap', label: 'FODMAP' }
-  ];
 
   return (
     <Container fluid className="p-0">
@@ -49,71 +97,106 @@ export function Preferencias() {
         <Col xs={12} md={3} lg={2} className="p-0">
           <Sidebar />
         </Col>
-        <Col xs={12} md={9} lg={10} className="p-4">
-          <h1>Preferencias Alimenticias</h1>
+        <Col xs={12} md={9} lg={10} className="p-4" style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+          <h1 className="mb-4">Preferencias y Datos Personales</h1>
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-4" controlId="goal">
-              <Form.Label>Objetivo nutricional</Form.Label>
-              <Form.Select name="goal" value={preferences.goal} onChange={handleChange}>
-                <option value="balanced">Dieta equilibrada</option>
-                <option value="weight_loss">Perder peso</option>
-                <option value="weight_gain">Ganar peso</option>
-              </Form.Select>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="objetivo">
+                  <Form.Label>Objetivo Principal</Form.Label>
+                  <Form.Select name="objetivo" value={formData.objetivo} onChange={handleChange}>
+                    <option value="">Selecciona uno</option>
+                    <option value="bajar">Bajar de peso</option>
+                    <option value="subir">Subir de peso</option>
+                    <option value="mantener">Mantener peso</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                 <Form.Group className="mb-3" controlId="requerimientosSalud">
+                    <Form.Label>Requerimientos de salud</Form.Label>
+                    <Form.Control type="text" name="requerimientosSalud" value={formData.requerimientosSalud} onChange={handleChange} />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3" controlId="pesoInicial">
+                  <Form.Label>Peso Inicial (kg)</Form.Label>
+                  <Form.Control type="number" name="pesoInicial" value={initialWeight} readOnly disabled />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3" controlId="peso">
+                  <Form.Label>Peso Actual (kg)</Form.Label>
+                  <Form.Control type="number" name="peso" value={formData.peso} onChange={handleChange} />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3" controlId="estatura">
+                  <Form.Label>Estatura (cm)</Form.Label>
+                  <Form.Control type="number" name="estatura" value={formData.estatura} onChange={handleChange} />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+                <Col md={6}>
+                    <Form.Group className="mb-3" controlId="tipoDieta">
+                    <Form.Label>Tipo de Dieta</Form.Label>
+                        <Form.Select name="tipoDieta" value={formData.tipoDieta} onChange={handleChange}>
+                            <option value="">Selecciona una</option>
+                            <option value="omnivora">Omnívora</option>
+                            <option value="vegetariana">Vegetariana</option>
+                            <option value="vegana">Vegana</option>
+                            <option value="pescetariana">Pescetariana</option>
+                            <option value="otra">Otra</option>
+                        </Form.Select>
+                    </Form.Group>
+                </Col>
+                <Col md={6}>
+                    <Form.Group className="mb-3" controlId="comidasPorDia">
+                    <Form.Label>Comidas por día</Form.Label>
+                        <Form.Select name="comidasPorDia" value={formData.comidasPorDia} onChange={handleChange}>
+                            <option value="">Selecciona una</option>
+                            <option value="3">3 comidas</option>
+                            <option value="4">4 comidas</option>
+                            <option value="5">5 comidas</option>
+                            <option value="otro">Otro</option>
+                        </Form.Select>
+                    </Form.Group>
+                </Col>
+            </Row>
+
+            <Form.Group className="mb-3" controlId="alergias">
+                <Form.Label>Alergias</Form.Label>
+                <Form.Control as="textarea" rows={2} name="alergias" value={formData.alergias} onChange={handleChange} placeholder="Ej: Maní, mariscos..."/>
             </Form.Group>
 
-            <Form.Group className="mb-4" controlId="dietType">
-              <Form.Label>Tipo de dieta</Form.Label>
-              <Form.Select name="dietType" value={preferences.dietType} onChange={handleChange}>
-                <option value="omnivore">Omnívoro</option>
-                <option value="vegetarian">Vegetariano</option>
-                <option value="vegan">Vegano</option>
-                <option value="keto">Cetogénica</option>
-                <option value="paleo">Paleo</option>
-              </Form.Select>
+            <Form.Group className="mb-3" controlId="intolerancias">
+                <Form.Label>Intolerancias</Form.Label>
+                <Form.Control as="textarea" rows={2} name="intolerancias" value={formData.intolerancias} onChange={handleChange} placeholder="Ej: Lactosa, gluten..."/>
             </Form.Group>
 
-            <Form.Group className="mb-4" controlId="allergies">
-              <Form.Label>Alergias</Form.Label>
-              {allergyOptions.map(opt => (
-                <Form.Check
-                  type="checkbox"
-                  name="allergies"
-                  key={opt.value}
-                  label={opt.label}
-                  value={opt.value}
-                  checked={preferences.allergies.includes(opt.value)}
-                  onChange={handleChange}
-                  className="mb-2"
-                />
-              ))}
+            <Form.Group className="mb-4" controlId="grupoAlimentosPreferido">
+              <Form.Label>Grupos de alimentos preferidos</Form.Label>
+              <div>
+                <Form.Check inline type="checkbox" name="grupoAlimentosPreferido" label="Frutas" value="frutas" checked={formData.grupoAlimentosPreferido.includes('frutas')} onChange={handleChange} />
+                <Form.Check inline type="checkbox" name="grupoAlimentosPreferido" label="Verduras" value="verduras" checked={formData.grupoAlimentosPreferido.includes('verduras')} onChange={handleChange} />
+                <Form.Check inline type="checkbox" name="grupoAlimentosPreferido" label="Proteínas" value="proteinas" checked={formData.grupoAlimentosPreferido.includes('proteinas')} onChange={handleChange} />
+                <Form.Check inline type="checkbox" name="grupoAlimentosPreferido" label="Carbohidratos" value="carbohidratos" checked={formData.grupoAlimentosPreferido.includes('carbohidratos')} onChange={handleChange} />
+                <Form.Check inline type="checkbox" name="grupoAlimentosPreferido" label="Grasas saludables" value="grasas" checked={formData.grupoAlimentosPreferido.includes('grasas')} onChange={handleChange} />
+              </div>
+            </Form.Group>
+            
+            <Form.Group className="mb-3" controlId="alimentosFavoritos">
+                <Form.Label>Alimentos Favoritos</Form.Label>
+                <Form.Control as="textarea" rows={3} name="alimentosFavoritos" value={formData.alimentosFavoritos} onChange={handleChange} />
             </Form.Group>
 
-            <Form.Group className="mb-4" controlId="intolerances">
-              <Form.Label>Intolerancias</Form.Label>
-              {intoleranceOptions.map(opt => (
-                <Form.Check
-                  type="checkbox"
-                  name="intolerances"
-                  key={opt.value}
-                  label={opt.label}
-                  value={opt.value}
-                  checked={preferences.intolerances.includes(opt.value)}
-                  onChange={handleChange}
-                  className="mb-2"
-                />
-              ))}
-            </Form.Group>
-
-            <Form.Group className="mb-4" controlId="mealsPerDay">
-              <Form.Label>Comidas por día</Form.Label>
-              <Form.Control
-                type="number"
-                name="mealsPerDay"
-                min={1}
-                max={6}
-                value={preferences.mealsPerDay}
-                onChange={handleChange}
-              />
+            <Form.Group className="mb-3" controlId="platillosFavoritos">
+                <Form.Label>Platillos Favoritos</Form.Label>
+                <Form.Control as="textarea" rows={3} name="platillosFavoritos" value={formData.platillosFavoritos} onChange={handleChange} />
             </Form.Group>
 
             <Button variant="success" type="submit">

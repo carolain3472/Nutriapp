@@ -1,66 +1,77 @@
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const User = require('../models/User');
 
-// Debug: verificar si la API key está cargada
-console.log('OPENAI_API_KEY loaded:', process.env.OPENAI_API_KEY ? 'YES' : 'NO');
-console.log('API Key length:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.length : 0);
+const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
 
-// Solo instanciar OpenAI si hay API key
-let openai = null;
+const buildSystemPrompt = (user) => {
+    let prompt = `Eres un asistente de nutrición amigable y experto llamado NutriChat. Tu objetivo es ayudar a los usuarios a alcanzar sus metas de salud.`;
 
-if (process.env.OPENAI_API_KEY?.trim()) {
-  openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY.trim(),
-  });
-} else {
-  console.warn('⚠️ No se ha definido OPENAI_API_KEY. El chat con el nutricionista no funcionará.');
+    if (user && user.preferences) {
+        const { objetivo, tipoDieta, alergias, intolerancias, alimentosFavoritos, peso, estatura } = user.preferences;
+        prompt += `\nAquí tienes información sobre el usuario actual para personalizar tus respuestas:\n`;
+        if (objetivo) prompt += `- Objetivo principal: ${objetivo}.\n`;
+        if (tipoDieta) prompt += `- Tipo de dieta: ${tipoDieta}.\n`;
+        if (alergias) prompt += `- Alergias: ${alergias}.\n`;
+        if (intolerancias) prompt += `- Intolerancias: ${intolerancias}.\n`;
+        if (alimentosFavoritos) prompt += `- Alimentos favoritos: ${alimentosFavoritos}.\n`;
+        if (peso && estatura) {
+             const heightInMeters = parseFloat(estatura) / 100;
+             const bmi = (parseFloat(peso) / (heightInMeters * heightInMeters)).toFixed(2);
+             prompt += `- Peso: ${peso}kg, Estatura: ${estatura}cm, lo que da un IMC de ${bmi}.\n`;
+        }
+    }
+    prompt += `\nSé conciso, amigable y proporciona información precisa y útil.`;
+    return prompt;
 }
 
 const chatWithNutrionist = async (req, res) => {
-  try {
-    const { messages } = req.body;
+    try {
+        const user = await User.findById(req.user.id).select('preferences');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
 
-    const systemMessage = {
-      role: "system",
-      content: `Eres un nutriólogo experto, y solo puedes responder preguntas de esa área (preguntas fuera de este 
-         tema debes decir que no estás relacionado a ellos), después de recibir el nombre del usuario, vas 
-         a preguntar las siguientes cosas y esperar a que te responda pregunta por pregunta. Las preguntas son: 
-         ¿Cuál es tu edad?, ¿Cuál es tu peso actual?, ¿Cuál es tu altura?, ¿Cuál es tu sexo?, 
-         ¿Qué tipo de actividad física realizas, si realizas?, 
-         con base a esas respuestas vas a calcular el IMC y brindarle al usuario un plan alimenticio con base a 
-         para que quiere el plan, también debes considerar alergias a medicamentos y alimentos, 
-         y si sufre de alguna condición médica crónica, además, considerar sus preferencias alimenticias como si es vegano, 
-         vegetariano u omnívoro, intolerante a la lactosa y otra información que consideres necesaria, para que 
-         le brindes mejores recomendaciones al usuario que se alineen con sus elecciones dietéticas.
-         
-         Para afinar el plan alimenticio que proporcionarás al usuario, debes tener en cuenta la región o
-         lugar en el que vive el usuario. Así podrás recomendarle alimentos que sí estén a su alcance.
+        const { history, message } = req.body;
 
-         Recuerda al final, generar el plan alimenticio detallado.
+        if (!message) {
+            return res.status(400).json({ message: 'El mensaje no puede estar vacío.' });
+        }
 
-         Cuando generes el plan alimenticio, debes generar una tabla con formato HTML para que se vea de manera organizada y detallada al enviar el mensaje al usuario a través del chat y por correo.`
-    };
+        const systemInstruction = buildSystemPrompt(user);
+        
+        const geminiHistory = (history || []).map(h => ({
+            role: h.role,
+            parts: [{ text: h.parts }]
+        }));
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [systemMessage, ...messages],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
+        const chat = model.startChat({
+            history: [
+                { role: "user", parts: [{ text: systemInstruction }] },
+                { role: "model", parts: [{ text: "¡Hola! Soy NutriChat. ¿En qué puedo ayudarte hoy?" }] },
+                ...geminiHistory
+            ],
+            generationConfig: {
+              maxOutputTokens: 800,
+              temperature: 0.7,
+            },
+        });
 
-    res.json({
-      success: true,
-      message: response.choices[0].message.content
-    });
+        const result = await chat.sendMessage(message);
+        const response = await result.response;
+        const text = response.text();
 
-  } catch (error) {
-    console.error('Error with OpenAI:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Error processing chat message'
-    });
-  }
+        res.json({ reply: text });
+
+    } catch (error) {
+        console.error('Error in chatWithNutrionist:', error);
+        if (error.message && error.message.includes('API key')) {
+             return res.status(500).json({ message: 'Error de configuración: La clave de API de Gemini no es válida o no se ha proporcionado.' });
+        }
+        res.status(500).json({ message: 'Error interno del servidor en el chat' });
+    }
 };
 
 module.exports = {
-  chatWithNutrionist
+    chatWithNutrionist,
 }; 

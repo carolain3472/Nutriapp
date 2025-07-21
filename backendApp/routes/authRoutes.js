@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const { register, login } = require('../controllers/authcontroller');
+const { register, login, updatePreferences } = require('../controllers/authcontroller');
 const multer = require('multer');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const User = require('../models/User');
 
@@ -11,40 +11,13 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Ruta para registrar usuario
-router.post('/register', upload.single('foto_perfil'), async (req, res) => {
-  try {
-    const { nombre, apellidos, fecha_nacimiento, altura, peso, genero, email, password } = req.body;
-
-    // Hashear la contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const nuevoUsuario = new User({
-      nombre,
-      apellidos,
-      fecha_nacimiento: fecha_nacimiento ? new Date(fecha_nacimiento) : undefined,
-      altura: altura ? Number(altura) : undefined,
-      peso: peso ? Number(peso) : undefined,
-      genero,
-      email,
-      password: hashedPassword,
-      foto_perfil: req.file
-        ? {
-            data: req.file.buffer,
-            contentType: req.file.mimetype
-          }
-        : undefined
-    });
-
-    await nuevoUsuario.save();
-    res.status(201).json({ mensaje: 'Usuario registrado exitosamente' });
-  } catch (error) {
-    console.error('Error al registrar usuario:', error);
-    res.status(500).json({ error: 'Error al registrar usuario' });
-  }
-});
+router.post('/register', upload.single('foto_perfil'), register);
 
 
 router.post('/login', login);
+
+// Ruta para actualizar las preferencias del usuario
+router.put('/preferences', authMiddleware, updatePreferences);
 
 // Ruta para actualizar el perfil del usuario (peso y/o foto)
 router.post('/update-profile', upload.single('photo'), async (req, res) => {

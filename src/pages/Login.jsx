@@ -35,7 +35,10 @@ export function Login() {
 
       localStorage.removeItem("user");
       localStorage.setItem("user", JSON.stringify(user));
-      navigate("/perfil", { state: { user } });
+      
+      // Redirigir siempre al Dashboard
+      navigate("/dashboard");
+      
     } else {
       setError(result.message || "Error al iniciar sesión");
     }
