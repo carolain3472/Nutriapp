@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form } from 'react-bootstrap';
 import { Sidebar } from '../components/SideBar';
+import API_BASE_URL from '../config/api';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -52,11 +53,11 @@ export function Dashboard() {
                 // Manejar caso sin token, e.g., redirigir a login
                 return;
             }
-            const res = await fetch('/api/dashboard/data', {
+            const response = await fetch(`${API_BASE_URL}/api/dashboard/data`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const data = await res.json();
-            if (res.ok) {
+            const data = await response.json();
+            if (response.ok) {
                 setDashboardData(data);
             } else {
                 console.error('Error fetching dashboard data:', data.message);
@@ -101,32 +102,40 @@ export function Dashboard() {
 
         switch (modalType) {
             case 'weight':
-                endpoint = '/api/dashboard/weight';
-                body = { weight: parseFloat(weight) };
+                await fetch(`${API_BASE_URL}/api/dashboard/weight`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ weight: parseFloat(weight) })
+                });
+                fetchData(); // Refresh data
                 break;
             case 'meal':
-                endpoint = '/api/dashboard/meal';
-                body = { name: mealName, calories: parseInt(mealCalories), type: mealType };
+                await fetch(`${API_BASE_URL}/api/dashboard/meal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ name: mealName, calories: parseInt(mealCalories), type: mealType })
+                });
+                fetchData(); // Refresh data
                 break;
             case 'activity':
                 // This will require multiple API calls as per the current backend design
                 // For now, let's just handle one part of it. A better backend would handle this in one go.
                 if (caloriesBurned) {
-                    await fetch('/api/dashboard/calories-burned', {
+                    await fetch(`${API_BASE_URL}/api/dashboard/calories-burned`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ calories: parseInt(caloriesBurned) })
                     });
                 }
                 if (activeHours) {
-                     await fetch('/api/dashboard/active-hours', {
+                     await fetch(`${API_BASE_URL}/api/dashboard/active-hours`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ hours: parseFloat(activeHours) })
                     });
                 }
                 if (sleepHours) {
-                    await fetch('/api/dashboard/sleep-hours', {
+                    await fetch(`${API_BASE_URL}/api/dashboard/sleep-hours`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ hours: parseFloat(sleepHours) })
