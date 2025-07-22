@@ -9,6 +9,7 @@ import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Alert from "react-bootstrap/Alert";
+import Swal from "sweetalert2";
 import Image from "react-bootstrap/Image"; // Para mostrar la foto de perfil
 
 /**
@@ -43,7 +44,7 @@ export function PaymentGateway() {
     email: "",
     password: "",
     confirmPassword: "",
-    // CAMPOS DE FACTURACIÓN 
+    // CAMPOS DE FACTURACIÓN
     docType: "CC",
     docNumber: "",
     city: "",
@@ -51,7 +52,7 @@ export function PaymentGateway() {
     address: "",
     country: "",
     postalCode: "",
-    // CAMPOS DE PAGO 
+    // CAMPOS DE PAGO
     number: "",
     expiry: "",
     cvc: "",
@@ -112,25 +113,40 @@ export function PaymentGateway() {
     }
 
     try {
-      const response = await fetch("https://nutriapp-0agf.onrender.com/api/auth/register", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://nutriapp-0agf.onrender.com/api/auth/register",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const result = await response.json();
 
       if (response.ok) {
-        alert("Registro exitoso");
-        setRegistered(true); // avanzar al formulario de pago
+        await Swal.fire({
+          icon: "success",
+          title: "¡Registro exitoso!",
+          text: "Tu cuenta ha sido creada correctamente.",
+          confirmButtonText: "Continuar",
+        });
+        setRegistered(true);
       } else {
-        alert(`Error: ${result.error || "No se pudo registrar"}`);
+        Swal.fire({
+          icon: "error",
+          title: "Error al registrar",
+          text: result.error || "No se pudo completar el registro.",
+        });
       }
     } catch (error) {
       console.error("Error en el registro:", error);
-      alert("Ocurrió un error al registrar el usuario");
+      Swal.fire({
+        icon: "error",
+        title: "Error del servidor",
+        text: "Ocurrió un problema al conectar con el servidor.",
+      });
     }
   };
-
 
   /**
    * Al enviar el formulario de REGISTRO (perfil), validamos y avanzamos a pago.
@@ -142,7 +158,7 @@ export function PaymentGateway() {
       alert("Las contraseñas no coinciden.");
       return;
     }
-    
+
     await enviarRegistro(); // hace el POST al backend
   };
 
@@ -178,12 +194,7 @@ export function PaymentGateway() {
               {data.lastName}.
             </p>
           </Alert>
-          <Button
-            variant="success"
-            onClick={() =>
-              navigate("/login")
-            }
-          >
+          <Button variant="success" onClick={() => navigate("/login")}>
             Iniciar sesión
           </Button>
         </Card>
@@ -352,7 +363,10 @@ export function PaymentGateway() {
                     value={data.confirmPassword}
                     onChange={handleChange}
                     required
-                    isInvalid={data.confirmPassword && data.password !== data.confirmPassword}
+                    isInvalid={
+                      data.confirmPassword &&
+                      data.password !== data.confirmPassword
+                    }
                   />
                   <Form.Control.Feedback type="invalid">
                     Las contraseñas no coinciden.
