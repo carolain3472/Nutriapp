@@ -8,7 +8,7 @@ const buildSystemPrompt = (user) => {
     let prompt = `Eres un asistente de nutrición amigable y experto llamado NutriChat. Tu objetivo es ayudar a los usuarios a alcanzar sus metas de salud.`;
 
     if (user && user.preferences) {
-        const { objetivo, tipoDieta, alergias, intolerancias, alimentosFavoritos, peso, estatura } = user.preferences;
+        const { objetivo, tipoDieta, alergias, intolerancias, alimentosFavoritos, peso, estatura, restriccionesReligiosas, detalleRestriccionReligiosa } = user.preferences;
         prompt += `\nAquí tienes información sobre el usuario actual para personalizar tus respuestas:\n`;
         if (objetivo) prompt += `- Objetivo principal: ${objetivo}.\n`;
         if (tipoDieta) prompt += `- Tipo de dieta: ${tipoDieta}.\n`;
@@ -20,6 +20,8 @@ const buildSystemPrompt = (user) => {
              const bmi = (parseFloat(peso) / (heightInMeters * heightInMeters)).toFixed(2);
              prompt += `- Peso: ${peso}kg, Estatura: ${estatura}cm, lo que da un IMC de ${bmi}.\n`;
         }
+        if (restriccionesReligiosas) prompt += `- Restricciones religiosas: ${restriccionesReligiosas}.\n`;
+        if (detalleRestriccionReligiosa) prompt += `- Detalle de restricciones religiosas: ${detalleRestriccionReligiosa}.\n`;
     }
     prompt += `\nSé conciso, amigable y proporciona información precisa y útil.`;
     return prompt;

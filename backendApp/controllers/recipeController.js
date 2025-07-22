@@ -16,14 +16,16 @@ exports.getRecipes = async (req, res) => {
         let prompt = `Eres un chef y nutricionista experto. Genera 5 recetas.`;
 
         if (user.preferences) {
-            const { objetivo, tipoDieta, alergias, intolerancias, alimentosFavoritos, platillosFavoritos } = user.preferences;
+            const { objetivo, tipoDieta, alergias, intolerancias, alimentosFavoritos, platillosFavoritos, restriccionesReligiosas, detalleRestriccionReligiosa } = user.preferences;
             prompt += ` Basado en las siguientes preferencias del usuario:\n
             - Objetivo: ${objetivo || 'No especificado'}\n
             - Tipo de dieta: ${tipoDieta || 'No especificado'}\n
             - Alergias: ${alergias || 'Ninguna'}\n
             - Intolerancias: ${intolerancias || 'Ninguna'}\n
             - Alimentos que le gustan: ${alimentosFavoritos || 'No especificados'}\n
-            - Platillos que le gustan: ${platillosFavoritos || 'No especificados'}\n`;
+            - Platillos que le gustan: ${platillosFavoritos || 'No especificados'}\n
+            - Restricciones religiosas: ${restriccionesReligiosas || 'Ninguna'}\n
+            - Detalle de restricciones religiosas: ${detalleRestriccionReligiosa || 'Ninguno'}\n`;
         }
 
         if (search) {

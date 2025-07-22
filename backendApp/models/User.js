@@ -27,7 +27,9 @@ const userSchema = new mongoose.Schema({
     comidasPorDia: { type: String },
     grupoAlimentosPreferido: [{ type: String }],
     alimentosFavoritos: { type: String },
-    platillosFavoritos: { type: String }
+    platillosFavoritos: { type: String },
+    restriccionesReligiosas: { type: String },
+    detalleRestriccionReligiosa: { type: String },
   },
   // Nuevos campos para el historial de datos del dashboard
   weightHistory: [{
